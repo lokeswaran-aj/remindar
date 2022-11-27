@@ -1,9 +1,17 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import {
+    Ionicons,
+    FontAwesome,
+    Entypo,
+    Feather,
+    AntDesign,
+} from "@expo/vector-icons";
 
 import HomeScreen from "../screens/HomeScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import AddEventScreen from "../screens/AddEventScreen";
+import colors from "../constants/colors";
 
 const Stack = createNativeStackNavigator();
 
@@ -11,10 +19,90 @@ const Tab = createBottomTabNavigator();
 
 function MyTabs() {
     return (
-        <Tab.Navigator screenOptions={{ headerShown: false }}>
-            <Tab.Screen name="Home" component={HomeScreen} />
-            <Tab.Screen name="AddEventScreen" component={AddEventScreen} />
-            <Tab.Screen name="Settings" component={SettingsScreen} />
+        <Tab.Navigator
+            screenOptions={{
+                headerShown: false,
+                tabBarStyle: {
+                    tabBarShowLabel: false,
+                    position: "absolute",
+                    left: 20,
+                    right: 20,
+                    bottom: 20,
+                    paddingBottom: 0,
+                    borderRadius: 100,
+                    backgroundColor: colors.secondary,
+                    borderWidth: 1,
+                    borderColor: colors.black,
+                    borderTopColor: colors.black,
+                    height: 50,
+                    alignItems: "center",
+                    justifyContent: "center",
+                },
+            }}
+        >
+            <Tab.Screen
+                name="Home"
+                component={HomeScreen}
+                options={{
+                    tabBarShowLabel: false,
+                    tabBarIcon: ({ focused }) =>
+                        focused ? (
+                            <FontAwesome
+                                name="home"
+                                size={28}
+                                color={colors.primary}
+                            />
+                        ) : (
+                            <FontAwesome
+                                name="home"
+                                size={24}
+                                color={colors.lightGray}
+                            />
+                        ),
+                }}
+            />
+            <Tab.Screen
+                name="AddEventScreen"
+                component={AddEventScreen}
+                options={{
+                    tabBarShowLabel: false,
+                    tabBarIcon: ({ focused }) =>
+                        focused ? (
+                            <Entypo
+                                name="plus"
+                                size={36}
+                                color={colors.primary}
+                            />
+                        ) : (
+                            <Entypo
+                                name="plus"
+                                size={32}
+                                color={colors.lightGray}
+                            />
+                        ),
+                }}
+            />
+            <Tab.Screen
+                name="Settings"
+                component={SettingsScreen}
+                options={{
+                    tabBarShowLabel: false,
+                    tabBarIcon: ({ focused }) =>
+                        focused ? (
+                            <Ionicons
+                                name="settings"
+                                size={28}
+                                color={colors.primary}
+                            />
+                        ) : (
+                            <Ionicons
+                                name="settings-sharp"
+                                size={24}
+                                color={colors.lightGray}
+                            />
+                        ),
+                }}
+            />
         </Tab.Navigator>
     );
 }

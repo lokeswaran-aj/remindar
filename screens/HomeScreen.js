@@ -24,9 +24,10 @@ const HomeScreen = () => {
 
     const marked = useMemo(() => {
         return {
-            [getDate(0)]: {
-                dotColor: "red",
-                marked: true,
+            ["2022-11-27"]: {
+                selected: true,
+                selectedColor: "lightGreen",
+                selectedTextColor: "red",
             },
             [selected]: {
                 selected: true,

@@ -25,8 +25,9 @@ const SettingsScreen = () => {
     }, []);
 
     const marked = useMemo(() => {
-        return {
-            [getDate(-1)]: {
+        let result = {};
+        result = {
+            ["2022-07-02"]: {
                 dotColor: "red",
                 marked: true,
             },
@@ -37,6 +38,8 @@ const SettingsScreen = () => {
                 selectedTextColor: "red",
             },
         };
+        console.log(result);
+        return result;
     }, [selected]);
 
     const renderCalendarWithSelectableDate = () => {

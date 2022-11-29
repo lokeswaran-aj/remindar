@@ -3,15 +3,18 @@ import { SafeAreaView, StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import AppNavigation from "./navigation/AppNavigation";
-import colors from "./constants/colors";
+import { Provider } from "react-redux";
+import { store } from "./store/store";
 
 export default function App() {
     return (
-        <SafeAreaProvider style={styles.container}>
-            <NavigationContainer>
-                <AppNavigation />
-            </NavigationContainer>
-        </SafeAreaProvider>
+        <Provider store={store}>
+            <SafeAreaProvider style={styles.container}>
+                <NavigationContainer>
+                    <AppNavigation />
+                </NavigationContainer>
+            </SafeAreaProvider>
+        </Provider>
     );
 }
 

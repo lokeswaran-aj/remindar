@@ -1,61 +1,126 @@
-import { SafeAreaView, StyleSheet, Text, View } from "react-native";
-import React, { useCallback, useMemo, useState } from "react";
+import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PageContainer from "../components/PageContainer";
-import {
-    Agenda,
-    Calendar,
-    CalendarUtils,
-    ExpandableCalendar,
-} from "react-native-calendars";
-let today = new Date().toISOString().slice(0, 10);
-const INITIAL_DATE = today;
+import { Calendar, CalendarUtils } from "react-native-calendars";
+import { useSelector } from "react-redux";
+import { Entypo, FontAwesome } from "@expo/vector-icons";
+
 const HomeScreen = () => {
-    const [selected, setSelected] = useState(INITIAL_DATE);
+    const [currentDate, setCurrentDate] = useState(
+        new Date().toISOString().slice(0, 10)
+    );
+    const [currentMonth, setCurrentMonth] = useState(
+        new Date().toISOString().slice(5, 7)
+    );
+    const [currentYear, setCurrentYear] = useState(
+        new Date().toISOString().slice(0, 4)
+    );
+    const [selectedMonthEvents, setSelectedMonthEvents] = useState([]);
+    const [selectedMonthEventDates, setSelectedMonthEventDates] = useState([]);
+    const [displayType, setDisplayType] = useState("calendar");
+
+    const allEvents = useSelector((state) => state.events.dates);
+
+    useEffect(() => {
+        setSelectedMonthEvents(allEvents[currentMonth]);
+        if (selectedMonthEvents) {
+            let eventDates = [];
+            for (let i = 0; i < selectedMonthEvents.length; i++) {
+                eventDates.push(selectedMonthEvents[i]["date"]);
+            }
+            setSelectedMonthEventDates(eventDates);
+        } else {
+            console.log("here");
+            console.log(currentMonth);
+            console.log(allEvents[currentMonth]);
+            console.log(selectedMonthEvents);
+        }
+    }, [selectedMonthEvents, currentMonth]);
 
     const onDayPress = useCallback((day) => {
-        setSelected(day.dateString);
+        console.log(day);
     }, []);
 
     const getDate = (count) => {
-        const date = new Date(INITIAL_DATE);
+        const date = new Date(currentDate);
         const newDate = date.setDate(date.getDate() + count);
         return CalendarUtils.getCalendarDateString(newDate);
     };
 
+    const handleMonthChange = (obj) => {
+        setSelectedMonthEventDates([]);
+        setSelectedMonthEvents([]);
+        setCurrentMonth(obj.month);
+        setCurrentYear(obj.year);
+    };
+
     const marked = useMemo(() => {
-        return {
-            ["2022-11-27"]: {
+        let result = {};
+        for (let day = 0; day < selectedMonthEventDates.length; day++) {
+            const dd = selectedMonthEventDates[day];
+            let dateString;
+            if (currentMonth < 10 && dd < 10) {
+                dateString = `${currentYear}-0${currentMonth}-0${dd}`;
+            } else if (currentMonth < 10) {
+                dateString = `${currentYear}-0${currentMonth}-${dd}`;
+            } else if (dd < 10) {
+                dateString = `${currentYear}-${currentMonth}-0${dd}`;
+            } else {
+                dateString = `${currentYear}-${currentMonth}-${dd}`;
+            }
+            result[dateString] = {
                 selected: true,
-                selectedColor: "lightGreen",
-                selectedTextColor: "red",
-            },
-            [selected]: {
-                selected: true,
-                disableTouchEvent: true,
                 selectedColor: "orange",
                 selectedTextColor: "red",
-            },
-        };
-    }, [selected]);
+            };
+        }
+        return result;
+    }, [selectedMonthEvents, selectedMonthEventDates, currentMonth]);
+
     return (
         <PageContainer>
             <View style={styles.container}>
-                <View>
-                    <Text style={styles.welcomeText}>Hi, Lokesh</Text>
-                    <Text style={styles.missText}>Don't miss any events!</Text>
+                <View style={styles.header}>
+                    <View>
+                        <Text style={styles.welcomeText}>Hi, Lokesh</Text>
+                        <Text style={styles.missText}>
+                            Don't miss any events!
+                        </Text>
+                    </View>
+                    <View>
+                        {displayType === "calendar" ? (
+                            <FontAwesome
+                                name="calendar"
+                                size={24}
+                                color="black"
+                                onPress={() => {
+                                    setDisplayType("list");
+                                }}
+                            />
+                        ) : (
+                            <Entypo
+                                name="menu"
+                                size={40}
+                                color="black"
+                                onPress={() => {
+                                    setDisplayType("calendar");
+                                }}
+                            />
+                        )}
+                    </View>
                 </View>
                 <View>
                     <Calendar
                         testID={"first_calendar"}
                         enableSwipeMonths
-                        current={INITIAL_DATE}
+                        current={currentDate}
                         style={styles.calendar}
                         onDayPress={onDayPress}
                         markedDates={marked}
                         onDayLongPress={(date) => console.log(date)}
+                        onMonthChange={(obj) => handleMonthChange(obj)}
                     />
                 </View>
-                <View></View>
             </View>
         </PageContainer>
     );
@@ -69,6 +134,11 @@ const styles = StyleSheet.create({
     },
     container: {
         padding: 20,
+    },
+    header: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
     },
     welcomeText: {
         fontSize: 24,

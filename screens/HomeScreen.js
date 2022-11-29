@@ -4,8 +4,10 @@ import PageContainer from "../components/PageContainer";
 import { Calendar, CalendarUtils } from "react-native-calendars";
 import { useSelector } from "react-redux";
 import { Entypo, FontAwesome } from "@expo/vector-icons";
+import { useIsFocused } from "@react-navigation/native";
 
-const HomeScreen = () => {
+const HomeScreen = (props) => {
+    const isFocused = useIsFocused();
     const [currentDate, setCurrentDate] = useState(
         new Date().toISOString().slice(0, 10)
     );
@@ -35,7 +37,7 @@ const HomeScreen = () => {
             console.log(allEvents[currentMonth]);
             console.log(selectedMonthEvents);
         }
-    }, [selectedMonthEvents, currentMonth]);
+    }, [selectedMonthEvents, currentMonth, props, isFocused]);
 
     const onDayPress = useCallback((day) => {
         console.log(day);

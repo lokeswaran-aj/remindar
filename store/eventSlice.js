@@ -31,15 +31,12 @@ export const eventSlice = createSlice({
     initialState,
     reducers: {
         addEvent: (state, action) => {
-            newEvent = action.payload.event;
-            if (state.dates[newEvent.date]) {
-                eventsOnThatDay = state.dates[newEvent.date];
-                eventsOnThatDay.push(newEvent.eventDetail);
-            } else {
-                eventsOnThatDay = [];
-                eventsOnThatDay.push(newEvent.eventDetail);
-            }
-            newEvents = {
+            const newEvent = action.payload.event;
+            const month = Object.keys(newEvent)[0];
+            let eventsOnThatDay;
+            eventsOnThatDay = state.dates[month];
+            eventsOnThatDay.push(newEvent[month]);
+            const newEvents = {
                 ...state.dates,
                 ...{ [newEvent.date]: eventsOnThatDay },
             };

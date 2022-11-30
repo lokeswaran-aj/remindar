@@ -22,16 +22,21 @@ export const eventSlice = createSlice({
     initialState,
     reducers: {
         addEvent: (state, action) => {
-            const newEvent = action.payload.event;
-            const month = Object.keys(newEvent)[0];
-            let eventsOnThatDay;
-            eventsOnThatDay = state.dates[month];
-            eventsOnThatDay.push(newEvent[month]);
-            const newEvents = {
-                ...state.dates,
-                ...{ [newEvent.date]: eventsOnThatDay },
+            const { month, date, title } = action.payload.event;
+            let eventsOnThatMonth;
+            eventsOnThatMonth = state.dates[month];
+            let eventsOnThatDay = eventsOnThatMonth[date];
+            if (eventsOnThatDay) {
+                eventsOnThatDay.push(title);
+            } else {
+                eventsOnThatDay = [];
+                eventsOnThatDay.push(title);
+            }
+            state.dates[month] = {
+                ...state.dates[month],
+                ...{ [date]: eventsOnThatDay },
             };
-            state.dates = newEvents;
+            console.log(state.dates);
         },
     },
 });

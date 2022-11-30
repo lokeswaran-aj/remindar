@@ -26,9 +26,13 @@ const AddEventScreen = () => {
             Alert.alert("Give a event name");
             return;
         }
-        event[selectedMonth] = { title: eventTitle, date: selectedDate };
+        event = {
+            month: selectedMonth,
+            title: eventTitle,
+            date: selectedDate,
+        };
         dispatch(addEvent({ event }));
-        Alert.alert("Success!", "Event Added");
+        // Alert.alert("Success!", "Event Added");
         setSelectedDate(undefined);
         setSelectedMonth(undefined);
         setEventTitle("");

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import DatePicker from "react-native-modern-datepicker";
 import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
 
@@ -19,6 +19,13 @@ const AddEventScreen = () => {
 
     const handleSubmit = () => {
         let event = {};
+        if (!selectedDate) {
+            Alert.alert("Choose a date");
+            return;
+        } else if (eventTitle === "") {
+            Alert.alert("Give a event name");
+            return;
+        }
         event[selectedMonth] = { title: eventTitle, date: selectedDate };
         dispatch(addEvent({ event }));
         Alert.alert("Success!", "Event Added");
@@ -35,6 +42,7 @@ const AddEventScreen = () => {
             setSelectedDate(+day.split("/")[2]);
         }
     };
+
     return (
         <PageContainer>
             <View style={styles.container}>
@@ -53,7 +61,9 @@ const AddEventScreen = () => {
                         selected={selectedDay}
                         mode="calendar"
                         style={{ borderRadius: 10 }}
-                        onSelectedChange={(day) => handleSelectedDayChange(day)}
+                        onSelectedChange={(dateString) =>
+                            handleSelectedDayChange(dateString)
+                        }
                     />
                 </View>
                 <View>

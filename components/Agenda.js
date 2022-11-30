@@ -7,6 +7,7 @@ const Agenda = (props) => {
     const selectedMonthEvents = props.selectedMonthEvents;
     return (
         <FlatList
+            showsVerticalScrollIndicator={false}
             data={selectedMonthEvents[date]}
             renderItem={(data) => (
                 <View style={styles.container}>

@@ -148,6 +148,7 @@ const HomeScreen = (props) => {
                 {displayType === "list" && (
                     <View style={styles.agendaList}>
                         <FlatList
+                            showsVerticalScrollIndicator={false}
                             bouncesZoom={true}
                             data={selectedMonthEventDates}
                             renderItem={(data) => (
@@ -178,6 +179,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
+        marginBottom: 20,
     },
     welcomeText: {
         fontSize: 24,

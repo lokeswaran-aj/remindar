@@ -55,6 +55,7 @@ const HomeScreen = (props) => {
         setSelectedMonthEvents([]);
         setCurrentMonth(obj.month);
         setCurrentYear(obj.year);
+        setCurrentDate(obj.dateString);
     };
 
     const marked = useMemo(() => {
@@ -80,6 +81,7 @@ const HomeScreen = (props) => {
         return result;
     }, [selectedMonthEvents, selectedMonthEventDates, currentMonth]);
 
+    // console.log(currentDate);
     return (
         <PageContainer>
             <View style={styles.container}>
@@ -115,7 +117,6 @@ const HomeScreen = (props) => {
                 {displayType === "calendar" && (
                     <View>
                         <Calendar
-                            testID={"first_calendar"}
                             enableSwipeMonths
                             current={currentDate}
                             style={styles.calendar}

@@ -36,7 +36,6 @@ export const eventSlice = createSlice({
                 ...state.dates[month],
                 ...{ [date]: eventsOnThatDay },
             };
-            console.log(state.dates);
         },
     },
 });

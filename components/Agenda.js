@@ -3,16 +3,16 @@ import React from "react";
 import colors from "../constants/colors";
 
 const Agenda = (props) => {
-    const event = props.event;
+    const date = props.date;
     const selectedMonthEvents = props.selectedMonthEvents;
     return (
         <FlatList
-            data={selectedMonthEvents[event]}
+            data={selectedMonthEvents[date]}
             renderItem={(data) => (
                 <View style={styles.container}>
                     <View style={styles.agenda}>
                         <View style={styles.date}>
-                            <Text style={styles.dateText}>{event}</Text>
+                            <Text style={styles.dateText}>{date}</Text>
                         </View>
                         <View style={styles.title}>
                             <Text style={styles.titleText}>{data.item}</Text>

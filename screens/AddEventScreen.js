@@ -32,7 +32,7 @@ const AddEventScreen = () => {
             date: selectedDate,
         };
         dispatch(addEvent({ event }));
-        // Alert.alert("Success!", "Event Added");
+        Alert.alert("Success!", "Event Added");
         setSelectedDate(undefined);
         setSelectedMonth(undefined);
         setEventTitle("");

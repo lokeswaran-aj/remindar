@@ -1,19 +1,26 @@
-import { StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import colors from "../constants/colors";
 
-const Agenda = ({ event }) => {
+const Agenda = (props) => {
+    const event = props.event;
+    const selectedMonthEvents = props.selectedMonthEvents;
     return (
-        <View style={styles.container}>
-            <View style={styles.agenda}>
-                <View style={styles.date}>
-                    <Text style={styles.dateText}>{event.date}</Text>
+        <FlatList
+            data={selectedMonthEvents[event]}
+            renderItem={(data) => (
+                <View style={styles.container}>
+                    <View style={styles.agenda}>
+                        <View style={styles.date}>
+                            <Text style={styles.dateText}>{event}</Text>
+                        </View>
+                        <View style={styles.title}>
+                            <Text style={styles.titleText}>{data.item}</Text>
+                        </View>
+                    </View>
                 </View>
-                <View style={styles.title}>
-                    <Text style={styles.titleText}>{event.title}</Text>
-                </View>
-            </View>
-        </View>
+            )}
+        />
     );
 };
 

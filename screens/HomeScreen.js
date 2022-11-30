@@ -18,7 +18,7 @@ const HomeScreen = (props) => {
     const [currentYear, setCurrentYear] = useState(
         new Date().toISOString().slice(0, 4)
     );
-    const [selectedMonthEvents, setSelectedMonthEvents] = useState([]);
+    const [selectedMonthEvents, setSelectedMonthEvents] = useState({});
     const [selectedMonthEventDates, setSelectedMonthEventDates] = useState([]);
     const [displayType, setDisplayType] = useState("calendar");
 
@@ -28,8 +28,10 @@ const HomeScreen = (props) => {
         setSelectedMonthEvents(allEvents[currentMonth]);
         if (selectedMonthEvents) {
             let eventDates = [];
-            for (let i = 0; i < selectedMonthEvents.length; i++) {
-                eventDates.push(selectedMonthEvents[i]["date"]);
+            for (const date in selectedMonthEvents) {
+                if (Object.hasOwnProperty.call(selectedMonthEvents, date)) {
+                    eventDates.push(date);
+                }
             }
             setSelectedMonthEventDates(eventDates);
         } else {
@@ -81,7 +83,6 @@ const HomeScreen = (props) => {
         return result;
     }, [selectedMonthEvents, selectedMonthEventDates, currentMonth]);
 
-    // console.log(currentDate);
     return (
         <PageContainer>
             <View style={styles.container}>
@@ -131,8 +132,13 @@ const HomeScreen = (props) => {
                     <View style={styles.agendaList}>
                         <FlatList
                             bouncesZoom={true}
-                            data={selectedMonthEvents}
-                            renderItem={(data) => <Agenda event={data.item} />}
+                            data={selectedMonthEventDates}
+                            renderItem={(data) => (
+                                <Agenda
+                                    event={data.item}
+                                    selectedMonthEvents={selectedMonthEvents}
+                                />
+                            )}
                         />
                     </View>
                 )}

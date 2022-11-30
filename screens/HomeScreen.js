@@ -5,6 +5,7 @@ import { Calendar, CalendarUtils } from "react-native-calendars";
 import { useSelector } from "react-redux";
 import { Entypo, FontAwesome } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
+import Agenda from "../components/Agenda";
 
 const HomeScreen = (props) => {
     const isFocused = useIsFocused();
@@ -123,6 +124,18 @@ const HomeScreen = (props) => {
                         onMonthChange={(obj) => handleMonthChange(obj)}
                     />
                 </View>
+                {/* <ScrollView>
+                    {selectedMonthEvents.map((item) => (
+                        <Agenda event={item} key={item.title} />
+                    ))}
+                </ScrollView> */}
+                <View style={styles.agendaList}>
+                    <FlatList
+                        bouncesZoom={true}
+                        data={selectedMonthEvents}
+                        renderItem={(data) => <Agenda event={data.item} />}
+                    />
+                </View>
             </View>
         </PageContainer>
     );
@@ -136,6 +149,7 @@ const styles = StyleSheet.create({
     },
     container: {
         padding: 20,
+        flex: 1,
     },
     header: {
         flexDirection: "row",
@@ -147,5 +161,8 @@ const styles = StyleSheet.create({
     },
     missText: {
         fontSize: 40,
+    },
+    agendaList: {
+        flex: 1,
     },
 });

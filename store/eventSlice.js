@@ -18,6 +18,9 @@ const initialState = {
         11: [
             { title: "My Birthday", date: 11 },
             { title: "Father Birthday", date: 20 },
+            { title: "Father Birthday", date: 1 },
+            { title: "Father Birthday", date: 2 },
+            { title: "Father Birthday", date: 3 },
         ],
         12: [
             { title: "Rajini Birthday", date: 12 },

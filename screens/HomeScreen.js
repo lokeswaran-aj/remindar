@@ -118,7 +118,7 @@ const HomeScreen = (props) => {
                     </View>
                 </View>
                 {displayType === "calendar" && (
-                    <View>
+                    <View style={{ flex: 1 }}>
                         <Calendar
                             enableSwipeMonths
                             current={currentDate}
@@ -127,7 +127,7 @@ const HomeScreen = (props) => {
                             markedDates={marked}
                             onMonthChange={(obj) => handleMonthChange(obj)}
                         />
-                        <View>
+                        <View style={{ flex: 1 }}>
                             {selectedDate.length === 0 &&
                                 selectedDayEvents.length === 0 && (
                                     <Text>Choose a date</Text>

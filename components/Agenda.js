@@ -41,8 +41,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     date: {
-        width: 50,
-        height: 50,
+        width: 40,
+        height: 40,
         padding: 10,
         borderRadius: 25,
         color: "#F6E7C1",
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     },
     dateText: {
         color: "white",
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: "700",
     },
     title: {

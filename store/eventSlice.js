@@ -21,6 +21,9 @@ const initialState = {
             { title: "Father Birthday", date: 1 },
             { title: "Father Birthday", date: 2 },
             { title: "Father Birthday", date: 3 },
+            { title: "Father Birthday", date: 21 },
+            { title: "Father Birthday", date: 22 },
+            { title: "Father Birthday", date: 23 },
         ],
         12: [
             { title: "Rajini Birthday", date: 12 },

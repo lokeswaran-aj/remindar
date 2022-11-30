@@ -94,7 +94,7 @@ const HomeScreen = (props) => {
                         {displayType === "calendar" ? (
                             <FontAwesome
                                 name="calendar"
-                                size={24}
+                                size={40}
                                 color="black"
                                 onPress={() => {
                                     setDisplayType("list");
@@ -112,30 +112,29 @@ const HomeScreen = (props) => {
                         )}
                     </View>
                 </View>
-                <View>
-                    <Calendar
-                        testID={"first_calendar"}
-                        enableSwipeMonths
-                        current={currentDate}
-                        style={styles.calendar}
-                        onDayPress={onDayPress}
-                        markedDates={marked}
-                        onDayLongPress={(date) => console.log(date)}
-                        onMonthChange={(obj) => handleMonthChange(obj)}
-                    />
-                </View>
-                {/* <ScrollView>
-                    {selectedMonthEvents.map((item) => (
-                        <Agenda event={item} key={item.title} />
-                    ))}
-                </ScrollView> */}
-                <View style={styles.agendaList}>
-                    <FlatList
-                        bouncesZoom={true}
-                        data={selectedMonthEvents}
-                        renderItem={(data) => <Agenda event={data.item} />}
-                    />
-                </View>
+                {displayType === "calendar" && (
+                    <View>
+                        <Calendar
+                            testID={"first_calendar"}
+                            enableSwipeMonths
+                            current={currentDate}
+                            style={styles.calendar}
+                            onDayPress={onDayPress}
+                            markedDates={marked}
+                            onDayLongPress={(date) => console.log(date)}
+                            onMonthChange={(obj) => handleMonthChange(obj)}
+                        />
+                    </View>
+                )}
+                {displayType === "list" && (
+                    <View style={styles.agendaList}>
+                        <FlatList
+                            bouncesZoom={true}
+                            data={selectedMonthEvents}
+                            renderItem={(data) => <Agenda event={data.item} />}
+                        />
+                    </View>
+                )}
             </View>
         </PageContainer>
     );

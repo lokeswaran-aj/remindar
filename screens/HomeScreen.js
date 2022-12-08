@@ -130,7 +130,21 @@ const HomeScreen = (props) => {
                         <View style={{ flex: 1 }}>
                             {selectedDate.length === 0 &&
                                 selectedDayEvents.length === 0 && (
-                                    <Text>Choose a date</Text>
+                                    <View style={styles.agendaList}>
+                                        <FlatList
+                                            showsVerticalScrollIndicator={false}
+                                            bouncesZoom={true}
+                                            data={selectedMonthEventDates}
+                                            renderItem={(data) => (
+                                                <Agenda
+                                                    date={data.item}
+                                                    selectedMonthEvents={
+                                                        selectedMonthEvents
+                                                    }
+                                                />
+                                            )}
+                                        />
+                                    </View>
                                 )}
                             {selectedDate > 0 &&
                                 !selectedDayEvents[selectedDate] && (

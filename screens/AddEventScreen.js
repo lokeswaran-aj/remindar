@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import DatePicker from "react-native-modern-datepicker";
+import DatePicker from "react-native-date-picker";
 import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
 
 import PageContainer from "../components/PageContainer";

@@ -30,22 +30,33 @@ const HomeScreen = (props) => {
     useEffect(() => {
         setSelectedDate([]);
         setSelectedDayEvents([]);
-        setSelectedMonthEvents(allEvents[currentMonth]);
-        if (selectedMonthEvents) {
-            let eventDates = [];
-            for (const date in selectedMonthEvents) {
-                if (Object.hasOwnProperty.call(selectedMonthEvents, date)) {
-                    eventDates.push(date);
-                }
-            }
+        const currentMonthEvents = allEvents.filter(
+            (event) => event.month === currentMonth
+        );
+        let currentMonthEventsSortedByDate = [...currentMonthEvents].sort(
+            (a, b) => a.date - b.date
+        );
+        setSelectedMonthEvents(currentMonthEventsSortedByDate);
+    }, []);
+
+    useEffect(() => {
+        setSelectedDate([]);
+        setSelectedDayEvents([]);
+        const currentMonthEvents = allEvents.filter(
+            (event) => event.month === currentMonth
+        );
+        let currentMonthEventsSortedByDate = [...currentMonthEvents].sort(
+            (a, b) => a.date - b.date
+        );
+        setSelectedMonthEvents(currentMonthEventsSortedByDate);
+    }, [currentMonth, props, isFocused, displayType]);
+
+    useEffect(() => {
+        if (selectedMonthEvents.length > 0) {
+            const eventDates = selectedMonthEvents.map((obj) => obj.date);
             setSelectedMonthEventDates(eventDates);
-        } else {
-            console.log("here");
-            console.log(currentMonth);
-            console.log(allEvents[currentMonth]);
-            console.log(selectedMonthEvents);
         }
-    }, [selectedMonthEvents, currentMonth, props, isFocused, displayType]);
+    }, [selectedMonthEvents, currentMonth, currentYear, props]);
 
     const onDayPress = ({ day }) => {
         if (selectedMonthEvents[day] !== undefined) {
@@ -84,7 +95,7 @@ const HomeScreen = (props) => {
         }
         return result;
     }, [selectedMonthEvents, selectedMonthEventDates, currentMonth]);
-
+    console.log(selectedMonthEvents);
     return (
         <PageContainer>
             <View style={styles.container}>
@@ -125,24 +136,16 @@ const HomeScreen = (props) => {
                             style={styles.calendar}
                             onDayPress={onDayPress}
                             markedDates={marked}
-                            onMonthChange={(obj) => handleMonthChange(obj)}
+                            onMonthChange={handleMonthChange}
                         />
                         <View style={{ flex: 1 }}>
                             {selectedDate.length === 0 &&
                                 selectedDayEvents.length === 0 && (
                                     <View style={styles.agendaList}>
-                                        <FlatList
-                                            showsVerticalScrollIndicator={false}
-                                            bouncesZoom={true}
-                                            data={selectedMonthEventDates}
-                                            renderItem={(data) => (
-                                                <Agenda
-                                                    date={data.item}
-                                                    selectedMonthEvents={
-                                                        selectedMonthEvents
-                                                    }
-                                                />
-                                            )}
+                                        <Agenda
+                                            selectedMonthEvents={
+                                                selectedMonthEvents
+                                            }
                                         />
                                     </View>
                                 )}
@@ -152,8 +155,7 @@ const HomeScreen = (props) => {
                                 )}
                             {selectedDate > 0 && selectedDayEvents && (
                                 <Agenda
-                                    date={selectedDate}
-                                    selectedMonthEvents={selectedDayEvents}
+                                    selectedMonthEvents={selectedMonthEvents}
                                 />
                             )}
                         </View>
@@ -161,17 +163,7 @@ const HomeScreen = (props) => {
                 )}
                 {displayType === "list" && (
                     <View style={styles.agendaList}>
-                        <FlatList
-                            showsVerticalScrollIndicator={false}
-                            bouncesZoom={true}
-                            data={selectedMonthEventDates}
-                            renderItem={(data) => (
-                                <Agenda
-                                    date={data.item}
-                                    selectedMonthEvents={selectedMonthEvents}
-                                />
-                            )}
-                        />
+                        <Agenda selectedMonthEvents={selectedMonthEvents} />
                     </View>
                 )}
             </View>

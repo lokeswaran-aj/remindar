@@ -1,26 +1,74 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import {
+    Animated,
+    Dimensions,
+    Easing,
+    FlatList,
+    StyleSheet,
+    Text,
+    View,
+} from "react-native";
 import React from "react";
 import colors from "../constants/colors";
+import { SwipeListView } from "react-native-swipe-list-view";
+import { useState } from "react";
 
 const Agenda = (props) => {
-    const date = props.date;
     const selectedMonthEvents = props.selectedMonthEvents;
-    return (
-        <FlatList
-            showsVerticalScrollIndicator={false}
-            data={selectedMonthEvents[date]}
-            renderItem={(data) => (
-                <View style={styles.container}>
-                    <View style={styles.agenda}>
-                        <View style={styles.date}>
-                            <Text style={styles.dateText}>{date}</Text>
-                        </View>
-                        <View style={styles.title}>
-                            <Text style={styles.titleText}>{data.item}</Text>
-                        </View>
+    let opacity = new Animated.Value(0);
+    const [animationIsRunning, setAnimationIsRunning] = useState(false);
+
+    const onSwipeValueChange = (swipeData) => {
+        const { key, value } = swipeData;
+        if (value < -Dimensions.get("window").width && !animationIsRunning) {
+            setAnimationIsRunning(true);
+            Animated.timing(opacity, {
+                useNativeDriver: false,
+                toValue: 0,
+                duration: 200,
+            }).start(() => {
+                console.log(swipeData);
+                setAnimationIsRunning(false);
+            });
+        }
+    };
+    const renderItem = (events) => {
+        return (
+            <View style={styles.container}>
+                <View style={styles.agenda}>
+                    <View style={styles.date}>
+                        <Text style={styles.dateText}>{events.item.date}</Text>
+                    </View>
+                    <View style={styles.title}>
+                        <Text style={styles.titleText}>
+                            {events.item.title}
+                        </Text>
                     </View>
                 </View>
-            )}
+            </View>
+        );
+    };
+
+    const renderHiddenItem = () => (
+        <View style={styles.rowBack}>
+            <View style={[styles.backRightBtn, styles.backRightBtnRight]}>
+                <Text style={styles.backTextWhite}>Delete</Text>
+            </View>
+        </View>
+    );
+
+    return (
+        <SwipeListView
+            disableRightSwipe
+            renderItem={renderItem}
+            renderHiddenItem={renderHiddenItem}
+            rightOpenValue={-Dimensions.get("window").width}
+            previewRowKey={"0"}
+            previewOpenValue={-40}
+            previewOpenDelay={3000}
+            onSwipeValueChange={onSwipeValueChange}
+            useNativeDriver={false}
+            data={selectedMonthEvents}
+            showsVerticalScrollIndicator={false}
         />
     );
 };
@@ -29,12 +77,11 @@ export default Agenda;
 
 const styles = StyleSheet.create({
     container: {
-        marginBottom: 10,
+        marginBottom: 3,
         backgroundColor: colors.secondary,
         borderWidth: 1,
         width: "100%",
         padding: 10,
-        borderRadius: 30,
         borderColor: colors.gray,
     },
     agenda: {
@@ -65,5 +112,29 @@ const styles = StyleSheet.create({
         color: "white",
         fontWeight: "500",
         letterSpacing: 0.5,
+    },
+    rowBack: {
+        alignItems: "center",
+        marginBottom: 3,
+        backgroundColor: "red",
+        flex: 1,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        paddingLeft: 15,
+    },
+    backRightBtn: {
+        alignItems: "center",
+        bottom: 0,
+        justifyContent: "center",
+        position: "absolute",
+        top: 0,
+        width: 75,
+    },
+    backRightBtnRight: {
+        backgroundColor: "red",
+        right: 0,
+    },
+    backTextWhite: {
+        color: "#FFF",
     },
 });

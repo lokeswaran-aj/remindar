@@ -13,6 +13,7 @@ import { SwipeListView } from "react-native-swipe-list-view";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { deleteEvent } from "../store/eventSlice";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const Agenda = (props) => {
     const dispatch = useDispatch();
@@ -54,7 +55,9 @@ const Agenda = (props) => {
     const renderHiddenItem = () => (
         <View style={styles.rowBack}>
             <View style={[styles.backRightBtn, styles.backRightBtnRight]}>
-                <Text style={styles.backTextWhite}>Delete</Text>
+                <Text style={styles.backTextWhite}>
+                    <MaterialIcons name="delete" size={26} color="white" />
+                </Text>
             </View>
         </View>
     );

@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import DatePicker from "react-native-date-picker";
+import CalendarPicker from "react-native-calendar-picker";
+import uuid from "react-native-uuid";
+
 import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
 
 import PageContainer from "../components/PageContainer";
@@ -8,13 +10,11 @@ import { useDispatch } from "react-redux";
 import { addEvent } from "../store/eventSlice";
 
 const AddEventScreen = () => {
+    const today = new Date().toISOString().slice(0, 10);
     const dispatch = useDispatch();
-    const [currentDate, setCurrentDate] = useState(
-        new Date().toISOString().slice(0, 10)
-    );
-    const [selectedDay, setSelectedDay] = useState(undefined);
-    const [selectedDate, setSelectedDate] = useState(undefined);
-    const [selectedMonth, setSelectedMonth] = useState(undefined);
+    const [selectedDay, setSelectedDay] = useState(today);
+    const [selectedDate, setSelectedDate] = useState(today.split("-")[2]);
+    const [selectedMonth, setSelectedMonth] = useState(today.split("-")[1]);
     const [eventTitle, setEventTitle] = useState("");
 
     const handleSubmit = () => {
@@ -30,7 +30,9 @@ const AddEventScreen = () => {
             month: selectedMonth,
             title: eventTitle,
             date: selectedDate,
+            key: uuid.v4(),
         };
+        console.log(event);
         dispatch(addEvent({ event }));
         Alert.alert("Success!", "Event Added");
         setSelectedDate(undefined);
@@ -39,11 +41,12 @@ const AddEventScreen = () => {
         setSelectedDay(undefined);
     };
 
-    const handleSelectedDayChange = (day) => {
+    const handleSelectedDayChange = (dateString) => {
+        const day = dateString.toISOString().slice(0, 10);
         setSelectedDay(day);
         if (day) {
-            setSelectedMonth(+day.split("/")[1]);
-            setSelectedDate(+day.split("/")[2]);
+            setSelectedMonth(day.split("-")[1]);
+            setSelectedDate(day.split("-")[2]);
         }
     };
 
@@ -51,23 +54,25 @@ const AddEventScreen = () => {
         <PageContainer>
             <View style={styles.container}>
                 <View style={styles.calendar}>
-                    <DatePicker
-                        options={{
-                            backgroundColor: colors.secondary,
-                            textHeaderColor: "#FFA25B",
-                            textDefaultColor: "#F6E7C1",
-                            selectedTextColor: "#fff",
-                            mainColor: colors.primary,
-                            textSecondaryColor: "#D6C7A1",
-                            borderColor: "rgba(122, 146, 165, 0.1)",
-                        }}
-                        current={currentDate}
-                        selected={selectedDay}
-                        mode="calendar"
-                        style={{ borderRadius: 10 }}
-                        onSelectedChange={(dateString) =>
+                    <CalendarPicker
+                        todayBackgroundColor={"#fff"}
+                        // options={{
+                        //     backgroundColor: colors.secondary,
+                        //     textHeaderColor: "#FFA25B",
+                        //     textDefaultColor: "#F6E7C1",
+                        //     selectedTextColor: "#fff",
+                        //     mainColor: colors.primary,
+                        //     textSecondaryColor: "#D6C7A1",
+                        //     borderColor: "rgba(122, 146, 165, 0.1)",
+                        // }}
+                        // current={currentDate}
+                        // selected={selectedDay}
+                        // mode="calendar"
+                        // style={{ borderRadius: 10 }}
+                        onDateChange={(dateString) =>
                             handleSelectedDayChange(dateString)
                         }
+                        selectedStartDate={selectedDay}
                     />
                 </View>
                 <View>

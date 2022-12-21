@@ -11,8 +11,11 @@ import React from "react";
 import colors from "../constants/colors";
 import { SwipeListView } from "react-native-swipe-list-view";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { deleteEvent } from "../store/eventSlice";
 
 const Agenda = (props) => {
+    const dispatch = useDispatch();
     const selectedMonthEvents = props.selectedMonthEvents;
     let opacity = new Animated.Value(0);
     const [animationIsRunning, setAnimationIsRunning] = useState(false);
@@ -24,9 +27,9 @@ const Agenda = (props) => {
             Animated.timing(opacity, {
                 useNativeDriver: false,
                 toValue: 0,
-                duration: 200,
+                duration: 0,
             }).start(() => {
-                console.log(swipeData);
+                dispatch(deleteEvent({ key }));
                 setAnimationIsRunning(false);
             });
         }

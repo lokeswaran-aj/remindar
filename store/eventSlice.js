@@ -45,8 +45,19 @@ export const eventSlice = createSlice({
                 ...{ [date]: eventsOnThatDay },
             };
         },
+        deleteEvent: (state, action) => {
+            const { key } = action.payload;
+            const filteredArray = state.dates.reduce((acc, curr) => {
+                if (curr.key !== key) {
+                    acc.push(curr);
+                }
+                return acc;
+            }, []);
+            state.dates = filteredArray;
+        },
     },
 });
 
 export const addEvent = eventSlice.actions.addEvent;
+export const deleteEvent = eventSlice.actions.deleteEvent;
 export default eventSlice.reducer;

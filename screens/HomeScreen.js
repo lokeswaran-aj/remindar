@@ -41,12 +41,14 @@ const HomeScreen = (props) => {
             (a, b) => a.date - b.date
         );
         setSelectedMonthEvents(currentMonthEventsSortedByDate);
-    }, [currentMonth, props, isFocused, displayType]);
+    }, [currentMonth, props, isFocused, displayType, allEvents]);
 
     useEffect(() => {
         if (selectedMonthEvents.length > 0) {
             const eventDates = selectedMonthEvents.map((obj) => obj.date);
             setSelectedMonthEventDates(eventDates);
+        } else {
+            setSelectedMonthEventDates([]);
         }
     }, [selectedMonthEvents, currentMonth, currentYear, props]);
 

@@ -30,21 +30,13 @@ const HomeScreen = (props) => {
     useEffect(() => {
         setSelectedDate([]);
         setSelectedDayEvents([]);
-        const currentMonthEvents = allEvents.filter(
-            (event) => event.month === currentMonth
-        );
-        let currentMonthEventsSortedByDate = [...currentMonthEvents].sort(
-            (a, b) => a.date - b.date
-        );
-        setSelectedMonthEvents(currentMonthEventsSortedByDate);
-    }, []);
+        let currentMonthEvents = [];
 
-    useEffect(() => {
-        setSelectedDate([]);
-        setSelectedDayEvents([]);
-        const currentMonthEvents = allEvents.filter(
-            (event) => event.month === currentMonth
-        );
+        for (let i = 0; i < allEvents.length; i++) {
+            if (allEvents[i].month == currentMonth) {
+                currentMonthEvents.push(allEvents[i]);
+            }
+        }
         let currentMonthEventsSortedByDate = [...currentMonthEvents].sort(
             (a, b) => a.date - b.date
         );
@@ -95,7 +87,6 @@ const HomeScreen = (props) => {
         }
         return result;
     }, [selectedMonthEvents, selectedMonthEventDates, currentMonth]);
-    console.log(selectedMonthEvents);
     return (
         <PageContainer>
             <View style={styles.container}>

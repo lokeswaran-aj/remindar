@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
-import CalendarPicker from "react-native-calendar-picker";
+import React, { useMemo, useState } from "react";
 import uuid from "react-native-uuid";
 
 import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
@@ -8,6 +7,7 @@ import PageContainer from "../components/PageContainer";
 import colors from "../constants/colors";
 import { useDispatch } from "react-redux";
 import { addEvent } from "../store/eventSlice";
+import { Calendar } from "react-native-calendars";
 
 const AddEventScreen = () => {
     const today = new Date().toISOString().slice(0, 10);
@@ -41,38 +41,64 @@ const AddEventScreen = () => {
         setSelectedDay(undefined);
     };
 
-    const handleSelectedDayChange = (dateString) => {
-        const day = dateString.toISOString().slice(0, 10);
-        setSelectedDay(day);
-        if (day) {
-            setSelectedMonth(day.split("-")[1]);
-            setSelectedDate(day.split("-")[2]);
-        }
+    const handleSelectedDayChange = (newSelectedDate) => {
+        setSelectedDay(newSelectedDate.dateString);
+        setSelectedMonth(newSelectedDate.month);
+        setSelectedDate(newSelectedDate.day);
     };
+
+    const marked = useMemo(() => {
+        let result = {};
+        result = {
+            [selectedDay]: {
+                selected: true,
+                disableTouchEvent: true,
+                selectedColor: "orange",
+                selectedTextColor: "red",
+            },
+        };
+        return result;
+    }, [selectedDay]);
 
     return (
         <PageContainer>
             <View style={styles.container}>
-                <View style={styles.calendar}>
-                    <CalendarPicker
-                        todayBackgroundColor={"#fff"}
-                        // options={{
-                        //     backgroundColor: colors.secondary,
-                        //     textHeaderColor: "#FFA25B",
-                        //     textDefaultColor: "#F6E7C1",
-                        //     selectedTextColor: "#fff",
-                        //     mainColor: colors.primary,
-                        //     textSecondaryColor: "#D6C7A1",
-                        //     borderColor: "rgba(122, 146, 165, 0.1)",
-                        // }}
-                        // current={currentDate}
-                        // selected={selectedDay}
-                        // mode="calendar"
-                        // style={{ borderRadius: 10 }}
-                        onDateChange={(dateString) =>
-                            handleSelectedDayChange(dateString)
-                        }
-                        selectedStartDate={selectedDay}
+                <View style={styles.headerContainer}>
+                    <Text style={styles.header}>Add New Event</Text>
+                </View>
+                <View>
+                    <Calendar
+                        theme={{
+                            calendarBackground: "#333248",
+                            textSectionTitleColor: "white",
+                            textSectionTitleDisabledColor: "gray",
+                            todayBackgroundColor: "gray",
+                            dayTextColor: "red",
+                            todayTextColor: "white",
+                            selectedDayTextColor: "white",
+                            monthTextColor: "white",
+                            indicatorColor: "white",
+                            selectedDayBackgroundColor: "#333248",
+                            arrowColor: "white",
+                            // textDisabledColor: 'red',
+                            stylesheet: {
+                                calendar: {
+                                    header: {
+                                        week: {
+                                            marginTop: 30,
+                                            marginHorizontal: 12,
+                                            flexDirection: "row",
+                                            justifyContent: "space-between",
+                                        },
+                                    },
+                                },
+                            },
+                        }}
+                        testID={"first_calendar"}
+                        enableSwipeMonths
+                        current={today}
+                        onDayPress={handleSelectedDayChange}
+                        markedDates={marked}
                     />
                 </View>
                 <View>
@@ -97,6 +123,15 @@ export default AddEventScreen;
 const styles = StyleSheet.create({
     container: {
         padding: 20,
+    },
+    headerContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        fontWeight: "600",
+    },
+    header: {
+        fontWeight: "600",
+        fontSize: 24,
     },
     calendar: {},
     eventText: {

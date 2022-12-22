@@ -1,7 +1,7 @@
 import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PageContainer from "../components/PageContainer";
-import { Calendar, CalendarUtils } from "react-native-calendars";
+import { Calendar } from "react-native-calendars";
 import { useSelector } from "react-redux";
 import { Entypo, FontAwesome } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
@@ -53,10 +53,19 @@ const HomeScreen = (props) => {
     }, [selectedMonthEvents, currentMonth, currentYear, props]);
 
     const onDayPress = ({ day }) => {
-        if (selectedMonthEvents[day] !== undefined) {
-            setSelectedDayEvents({ [day]: selectedMonthEvents[day] });
+        if (day === selectedDate) {
+            setSelectedDate(undefined);
+            setSelectedDayEvents([]);
+        } else {
+            let currentDayEvents = [];
+            for (let i = 0; i < selectedMonthEvents.length; i++) {
+                if (selectedMonthEvents[i].date == day) {
+                    currentDayEvents.push(selectedMonthEvents[i]);
+                }
+            }
+            setSelectedDate(day);
+            setSelectedDayEvents(currentDayEvents);
         }
-        setSelectedDate(day);
     };
 
     const handleMonthChange = (obj) => {
@@ -132,7 +141,7 @@ const HomeScreen = (props) => {
                             onMonthChange={handleMonthChange}
                         />
                         <View style={{ flex: 1 }}>
-                            {selectedDate.length === 0 &&
+                            {selectedDate === undefined &&
                                 selectedDayEvents.length === 0 && (
                                     <View style={styles.agendaList}>
                                         <Agenda
@@ -143,14 +152,15 @@ const HomeScreen = (props) => {
                                     </View>
                                 )}
                             {selectedDate > 0 &&
-                                !selectedDayEvents[selectedDate] && (
+                                selectedDayEvents.length === 0 && (
                                     <Text>No Events</Text>
                                 )}
-                            {selectedDate > 0 && selectedDayEvents && (
-                                <Agenda
-                                    selectedMonthEvents={selectedMonthEvents}
-                                />
-                            )}
+                            {selectedDate > 0 &&
+                                selectedDayEvents.length > 0 && (
+                                    <Agenda
+                                        selectedMonthEvents={selectedDayEvents}
+                                    />
+                                )}
                         </View>
                     </View>
                 )}

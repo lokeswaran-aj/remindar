@@ -1,9 +1,17 @@
-import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+    FlatList,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View,
+} from "react-native";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PageContainer from "../components/PageContainer";
 import { Calendar } from "react-native-calendars";
 import { useSelector } from "react-redux";
-import { Entypo, FontAwesome } from "@expo/vector-icons";
+import { AntDesign, Entypo, FontAwesome } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
 import Agenda from "../components/Agenda";
 
@@ -27,6 +35,20 @@ const HomeScreen = (props) => {
 
     const allEvents = useSelector((state) => state.events.dates);
 
+    const monthsInTheYear = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    ];
     useEffect(() => {
         setSelectedDate(undefined);
         setSelectedDayEvents([]);
@@ -74,6 +96,36 @@ const HomeScreen = (props) => {
         setCurrentMonth(obj.month);
         setCurrentYear(obj.year);
         setCurrentDate(obj.dateString);
+    };
+    const handleListMonthChange = (direction, date, month, year) => {
+        let newYear, newMonth, newDate;
+        if (direction === "left") {
+            if (month === 1) {
+                newYear = year - 1;
+                newMonth = 12;
+            } else {
+                newYear = year;
+                newMonth = month - 1;
+            }
+        } else {
+            if (month === 12) {
+                newYear = year + 1;
+                newMonth = 1;
+            } else {
+                newYear = year;
+                newMonth = month + 1;
+            }
+        }
+        if (newMonth <= 9) {
+            newDate = newYear + "-0" + newMonth + "-" + date.slice(-2);
+        } else {
+            newDate = newYear + "-" + newMonth + "-" + date.slice(-2);
+        }
+        setSelectedMonthEventDates([]);
+        setSelectedMonthEvents([]);
+        setCurrentMonth(newMonth);
+        setCurrentYear(newYear);
+        setCurrentDate(newDate);
     };
 
     const marked = useMemo(() => {
@@ -133,6 +185,7 @@ const HomeScreen = (props) => {
                 {displayType === "calendar" && (
                     <View style={{ flex: 1 }}>
                         <Calendar
+                            testID="first_calendar"
                             enableSwipeMonths
                             current={currentDate}
                             style={styles.calendar}
@@ -166,6 +219,44 @@ const HomeScreen = (props) => {
                 )}
                 {displayType === "list" && (
                     <View style={styles.agendaList}>
+                        <View style={styles.listHeaderContainer}>
+                            <TouchableOpacity
+                                onPress={() =>
+                                    handleListMonthChange(
+                                        "left",
+                                        currentDate,
+                                        currentMonth,
+                                        currentYear
+                                    )
+                                }
+                            >
+                                <AntDesign
+                                    name="left"
+                                    size={23}
+                                    color="black"
+                                />
+                            </TouchableOpacity>
+                            <Text style={styles.listHeader}>
+                                {monthsInTheYear[currentMonth - 1]}{" "}
+                                {currentYear}
+                            </Text>
+                            <TouchableOpacity
+                                onPress={() =>
+                                    handleListMonthChange(
+                                        "right",
+                                        currentDate,
+                                        currentMonth,
+                                        currentYear
+                                    )
+                                }
+                            >
+                                <AntDesign
+                                    name="right"
+                                    size={23}
+                                    color="black"
+                                />
+                            </TouchableOpacity>
+                        </View>
                         <Agenda selectedMonthEvents={selectedMonthEvents} />
                     </View>
                 )}
@@ -198,5 +289,15 @@ const styles = StyleSheet.create({
     },
     agendaList: {
         flex: 1,
+    },
+    listHeaderContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: 20,
+    },
+    listHeader: {
+        fontSize: 20,
+        fontWeight: "500",
     },
 });

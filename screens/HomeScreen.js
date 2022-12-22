@@ -110,8 +110,8 @@ const HomeScreen = (props) => {
                     </View>
                     <View>
                         {displayType === "calendar" ? (
-                            <FontAwesome
-                                name="calendar"
+                            <Entypo
+                                name="menu"
                                 size={40}
                                 color="black"
                                 onPress={() => {
@@ -119,8 +119,8 @@ const HomeScreen = (props) => {
                                 }}
                             />
                         ) : (
-                            <Entypo
-                                name="menu"
+                            <FontAwesome
+                                name="calendar"
                                 size={40}
                                 color="black"
                                 onPress={() => {

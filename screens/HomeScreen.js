@@ -21,14 +21,14 @@ const HomeScreen = (props) => {
     const [selectedMonthEvents, setSelectedMonthEvents] = useState({});
     const [selectedMonthEventDates, setSelectedMonthEventDates] = useState([]);
     const [selectedDayEvents, setSelectedDayEvents] = useState([]);
-    const [selectedDate, setSelectedDate] = useState([]);
+    const [selectedDate, setSelectedDate] = useState(undefined);
 
     const [displayType, setDisplayType] = useState("calendar");
 
     const allEvents = useSelector((state) => state.events.dates);
 
     useEffect(() => {
-        setSelectedDate([]);
+        setSelectedDate(undefined);
         setSelectedDayEvents([]);
         let currentMonthEvents = [];
 

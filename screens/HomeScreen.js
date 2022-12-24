@@ -1,4 +1,5 @@
 import {
+    Button,
     FlatList,
     ScrollView,
     StyleSheet,
@@ -12,11 +13,18 @@ import PageContainer from "../components/PageContainer";
 import { Calendar } from "react-native-calendars";
 import { useSelector } from "react-redux";
 import { AntDesign, Entypo, FontAwesome } from "@expo/vector-icons";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import Agenda from "../components/Agenda";
+import { auth } from "../firebase";
+import { signOut } from "firebase/auth";
 
 const HomeScreen = (props) => {
     const isFocused = useIsFocused();
+    const navigation = useNavigation();
+    const name =
+        auth.currentUser?.email === undefined
+            ? "Dear"
+            : auth.currentUser?.email;
     const [currentDate, setCurrentDate] = useState(
         new Date().toISOString().slice(0, 10)
     );
@@ -150,12 +158,24 @@ const HomeScreen = (props) => {
         }
         return result;
     }, [selectedMonthEvents, selectedMonthEventDates, currentMonth]);
+
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            navigation.replace("Login");
+        } catch (error) {
+            console.log(error);
+        }
+    };
     return (
         <PageContainer>
             <View style={styles.container}>
                 <View style={styles.header}>
                     <View>
-                        <Text style={styles.welcomeText}>Hi, Lokesh</Text>
+                        <View style={styles.header}>
+                            <Text style={styles.welcomeText}>Hi, {name} </Text>
+                            <Button title="Logout" onPress={handleLogout} />
+                        </View>
                         <Text style={styles.missText}>
                             Don't miss any events!
                         </Text>

@@ -12,6 +12,7 @@ import HomeScreen from "../screens/HomeScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import AddEventScreen from "../screens/AddEventScreen";
 import colors from "../constants/colors";
+import Login from "../screens/Login";
 
 const Stack = createNativeStackNavigator();
 
@@ -108,7 +109,12 @@ export default function () {
                 headerShown: false,
             }}
         >
-            <Stack.Screen name="Main" component={MyTabs} />
+            <Stack.Group>
+                <Stack.Screen name="Login" component={Login} />
+            </Stack.Group>
+            <Stack.Group>
+                <Stack.Screen name="Main" component={MyTabs} />
+            </Stack.Group>
         </Stack.Navigator>
     );
 }

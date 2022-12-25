@@ -6,6 +6,7 @@ import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { Calendar } from "react-native-calendars";
 import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
+import { getDatabase, ref, onValue } from "firebase/database";
 
 import PageContainer from "../components/PageContainer";
 import Agenda from "../components/Agenda";
@@ -63,6 +64,13 @@ const HomeScreen = (props) => {
     }, [currentMonth, props, isFocused, displayType, allEvents]);
 
     useEffect(() => {
+        const currentuser = auth.currentUser;
+        const db = getDatabase();
+        const starCountRef = ref(db, "users/" + currentuser.uid);
+        onValue(starCountRef, (snapshot) => {
+            const data = snapshot.val();
+            setName(data.username);
+        });
         setName(auth.currentUser.displayName);
     }, [auth.currentUser.displayName]);
 

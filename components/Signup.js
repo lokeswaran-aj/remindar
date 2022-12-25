@@ -14,6 +14,7 @@ import {
     onAuthStateChanged,
     updateProfile,
 } from "firebase/auth";
+import { getDatabase, ref, set } from "firebase/database";
 import { useNavigation } from "@react-navigation/native";
 
 const Signup = () => {
@@ -39,7 +40,11 @@ const Signup = () => {
         setErrorMessage("");
         setIsLoading(true);
         try {
-            await createUserWithEmailAndPassword(auth, email, password);
+            const { user: currentUser } = await createUserWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
             await updateProfile(auth.currentUser, {
                 displayName: name,
             });
@@ -48,6 +53,11 @@ const Signup = () => {
                     navigation.navigate("Main");
                 }
             });
+            writeUserData(
+                currentUser.uid,
+                currentUser.email,
+                currentUser.displayName
+            );
             return unsubcrible;
         } catch (error) {
             if (error.code === "auth/invalid-email") {
@@ -63,6 +73,14 @@ const Signup = () => {
             }
         }
         setIsLoading(false);
+    };
+
+    const writeUserData = (userId, email, name) => {
+        const db = getDatabase();
+        set(ref(db, "users/" + userId), {
+            username: name,
+            email: email,
+        });
     };
 
     return (

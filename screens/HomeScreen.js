@@ -6,7 +6,7 @@ import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { Calendar } from "react-native-calendars";
 import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
-import { getDatabase, ref, onValue } from "firebase/database";
+import { getDatabase, ref, onValue, onChildAdded } from "firebase/database";
 
 import PageContainer from "../components/PageContainer";
 import Agenda from "../components/Agenda";
@@ -27,10 +27,9 @@ const HomeScreen = (props) => {
     const [selectedMonthEventDates, setSelectedMonthEventDates] = useState([]);
     const [selectedDayEvents, setSelectedDayEvents] = useState([]);
     const [selectedDate, setSelectedDate] = useState(undefined);
-
+    const [allEvents, setAllEvents] = useState([]);
     const [displayType, setDisplayType] = useState("calendar");
     const [name, setName] = useState("Dear Friend");
-    const allEvents = useSelector((state) => state.events.dates);
 
     const monthsInTheYear = [
         "January",
@@ -46,17 +45,28 @@ const HomeScreen = (props) => {
         "November",
         "December",
     ];
-
+    useEffect(() => {
+        const db = getDatabase();
+        let tempEvents = [];
+        const myUserId = auth.currentUser.uid;
+        const commentsRef = ref(db, "events/" + myUserId);
+        let singleEvent;
+        onChildAdded(commentsRef, (data) => {
+            singleEvent = data.val();
+            tempEvents.push(singleEvent);
+        });
+        setAllEvents(tempEvents);
+    }, []);
     useEffect(() => {
         setSelectedDate(undefined);
         setSelectedDayEvents([]);
         let currentMonthEvents = [];
 
-        for (let i = 0; i < allEvents.length; i++) {
-            if (allEvents[i].month == currentMonth) {
-                currentMonthEvents.push(allEvents[i]);
+        allEvents.forEach((obj) => {
+            if (obj.month == currentMonth) {
+                currentMonthEvents.push(obj);
             }
-        }
+        });
         let currentMonthEventsSortedByDate = [...currentMonthEvents].sort(
             (a, b) => a.date - b.date
         );

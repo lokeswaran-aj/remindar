@@ -1,23 +1,21 @@
 import React, { useMemo, useState } from "react";
-import uuid from "react-native-uuid";
 
 import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
+import { getDatabase, ref, push, set } from "firebase/database";
+import { auth } from "../firebase";
 
 import PageContainer from "../components/PageContainer";
 import colors from "../constants/colors";
-import { useDispatch } from "react-redux";
-import { addEvent } from "../store/eventSlice";
 import { Calendar } from "react-native-calendars";
 
 const AddEventScreen = () => {
     const today = new Date().toISOString().slice(0, 10);
-    const dispatch = useDispatch();
     const [selectedDay, setSelectedDay] = useState(today);
     const [selectedDate, setSelectedDate] = useState(today.split("-")[2]);
     const [selectedMonth, setSelectedMonth] = useState(today.split("-")[1]);
     const [eventTitle, setEventTitle] = useState("");
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         let event = {};
         if (!selectedDate) {
             Alert.alert("Choose a date");
@@ -30,15 +28,21 @@ const AddEventScreen = () => {
             month: selectedMonth,
             title: eventTitle,
             date: selectedDate,
-            key: uuid.v4(),
         };
-        console.log(event);
-        dispatch(addEvent({ event }));
-        Alert.alert("Success!", "Event Added");
-        setSelectedDate(undefined);
-        setSelectedMonth(undefined);
-        setEventTitle("");
-        setSelectedDay(undefined);
+        try {
+            const userid = auth.currentUser.uid;
+            const db = getDatabase();
+            const postListRef = ref(db, `events/${userid}`);
+            const newPostRef = push(postListRef);
+            await set(newPostRef, event);
+            Alert.alert("Success!", "Event Added");
+            setSelectedDate(undefined);
+            setSelectedMonth(undefined);
+            setEventTitle("");
+            setSelectedDay(undefined);
+        } catch (error) {
+            console.error(error.code);
+        }
     };
 
     const handleSelectedDayChange = (newSelectedDate) => {

@@ -1,12 +1,4 @@
-import {
-    Animated,
-    Dimensions,
-    Easing,
-    FlatList,
-    StyleSheet,
-    Text,
-    View,
-} from "react-native";
+import { Animated, Dimensions, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import colors from "../constants/colors";
 import { SwipeListView } from "react-native-swipe-list-view";

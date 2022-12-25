@@ -1,30 +1,18 @@
-import {
-    Button,
-    FlatList,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View,
-} from "react-native";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import PageContainer from "../components/PageContainer";
-import { Calendar } from "react-native-calendars";
+import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { AntDesign, Entypo, FontAwesome } from "@expo/vector-icons";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import Agenda from "../components/Agenda";
+import { Calendar } from "react-native-calendars";
 import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
+
+import PageContainer from "../components/PageContainer";
+import Agenda from "../components/Agenda";
 
 const HomeScreen = (props) => {
     const isFocused = useIsFocused();
     const navigation = useNavigation();
-    const name =
-        auth.currentUser?.email === undefined
-            ? "Dear"
-            : auth.currentUser?.email;
     const [currentDate, setCurrentDate] = useState(
         new Date().toISOString().slice(0, 10)
     );
@@ -40,7 +28,7 @@ const HomeScreen = (props) => {
     const [selectedDate, setSelectedDate] = useState(undefined);
 
     const [displayType, setDisplayType] = useState("calendar");
-
+    const [name, setName] = useState("Dear Friend");
     const allEvents = useSelector((state) => state.events.dates);
 
     const monthsInTheYear = [
@@ -57,6 +45,7 @@ const HomeScreen = (props) => {
         "November",
         "December",
     ];
+
     useEffect(() => {
         setSelectedDate(undefined);
         setSelectedDayEvents([]);
@@ -74,6 +63,10 @@ const HomeScreen = (props) => {
     }, [currentMonth, props, isFocused, displayType, allEvents]);
 
     useEffect(() => {
+        setName(auth.currentUser.displayName);
+    }, [auth.currentUser.displayName]);
+
+    useEffect(() => {
         if (selectedMonthEvents.length > 0) {
             const eventDates = selectedMonthEvents.map((obj) => obj.date);
             setSelectedMonthEventDates(eventDates);
@@ -81,7 +74,6 @@ const HomeScreen = (props) => {
             setSelectedMonthEventDates([]);
         }
     }, [selectedMonthEvents, currentMonth, currentYear, props]);
-
     const onDayPress = ({ day }) => {
         if (day === selectedDate) {
             setSelectedDate(undefined);
@@ -135,7 +127,6 @@ const HomeScreen = (props) => {
         setCurrentYear(newYear);
         setCurrentDate(newDate);
     };
-
     const marked = useMemo(() => {
         let result = {};
         for (let day = 0; day < selectedMonthEventDates.length; day++) {
@@ -170,36 +161,38 @@ const HomeScreen = (props) => {
     return (
         <PageContainer>
             <View style={styles.container}>
-                <View style={styles.header}>
-                    <View>
+                <View>
+                    <View style={styles.headerContainer}>
                         <View style={styles.header}>
-                            <Text style={styles.welcomeText}>Hi, {name} </Text>
+                            <Text style={styles.welcomeText}>
+                                Hi, {name === null ? "dear friend" : name}!
+                            </Text>
                             <Button title="Logout" onPress={handleLogout} />
                         </View>
-                        <Text style={styles.missText}>
-                            Don't miss any events!
-                        </Text>
-                    </View>
-                    <View>
-                        {displayType === "calendar" ? (
-                            <Entypo
-                                name="menu"
-                                size={40}
-                                color="black"
-                                onPress={() => {
-                                    setDisplayType("list");
-                                }}
-                            />
-                        ) : (
-                            <FontAwesome
-                                name="calendar"
-                                size={40}
-                                color="black"
-                                onPress={() => {
-                                    setDisplayType("calendar");
-                                }}
-                            />
-                        )}
+                        <View style={styles.header}>
+                            <Text style={styles.missText}>
+                                Don't miss any events!
+                            </Text>
+                            {displayType === "calendar" ? (
+                                <Entypo
+                                    name="menu"
+                                    size={40}
+                                    color="black"
+                                    onPress={() => {
+                                        setDisplayType("list");
+                                    }}
+                                />
+                            ) : (
+                                <FontAwesome
+                                    name="calendar"
+                                    size={40}
+                                    color="black"
+                                    onPress={() => {
+                                        setDisplayType("calendar");
+                                    }}
+                                />
+                            )}
+                        </View>
                     </View>
                 </View>
                 {displayType === "calendar" && (
@@ -295,7 +288,13 @@ const styles = StyleSheet.create({
         padding: 20,
         flex: 1,
     },
+    headerContainer: {
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 20,
+    },
     header: {
+        width: "100%",
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",

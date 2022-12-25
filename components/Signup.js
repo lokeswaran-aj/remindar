@@ -1,4 +1,5 @@
 import {
+    ActivityIndicator,
     KeyboardAvoidingView,
     StyleSheet,
     Text,
@@ -6,58 +7,72 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { auth } from "../firebase";
 import {
     createUserWithEmailAndPassword,
     onAuthStateChanged,
+    updateProfile,
 } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 
 const Signup = () => {
-    const [firstname, setFirstName] = useState("");
-    const [lastname, setLastName] = useState("");
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigation = useNavigation();
-
-    useEffect(() => {
-        const unsubcrible = onAuthStateChanged(auth, (user) => {
-            if (user) {
-                navigation.replace("Main");
-            }
-        });
-        return unsubcrible;
-    }, []);
-
+    const [errorMessage, setErrorMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
     const handleSignup = async () => {
-        try {
-            const userCredentials = await createUserWithEmailAndPassword(
-                auth,
-                email,
-                password
-            );
-            const currentUser = userCredentials.user;
-            console.log("Registered with:", currentUser.email);
-        } catch (error) {
-            console.log(error.message);
+        if (name === "") {
+            setErrorMessage("Enter the Name");
+            return;
         }
+        if (email === "") {
+            setErrorMessage("Enter the email id");
+            return;
+        }
+        if (password === "") {
+            setErrorMessage("Enter the password");
+            return;
+        }
+        setErrorMessage("");
+        setIsLoading(true);
+        try {
+            await createUserWithEmailAndPassword(auth, email, password);
+            await updateProfile(auth.currentUser, {
+                displayName: name,
+            });
+            const unsubcrible = onAuthStateChanged(auth, (user) => {
+                if (user && user.displayName) {
+                    navigation.navigate("Main");
+                }
+            });
+            return unsubcrible;
+        } catch (error) {
+            if (error.code === "auth/invalid-email") {
+                setErrorMessage("Email Id is invalid");
+            } else if (error.code === "auth/email-already-in-use") {
+                setErrorMessage("Email Id already exists");
+            } else if (error.code === "auth/wrong-password") {
+                setErrorMessage("Password is invalid");
+            } else if (error.code === "auth/weak-password") {
+                setErrorMessage("Enter a stronger password");
+            } else {
+                setErrorMessage(error.code);
+            }
+        }
+        setIsLoading(false);
     };
 
     return (
         <KeyboardAvoidingView style={styles.container} behavior="padding">
             <View style={styles.inputContainer}>
                 <TextInput
-                    value={firstname}
-                    onChangeText={(text) => setFirstName(text)}
+                    value={name}
+                    onChangeText={(text) => setName(text)}
                     style={styles.input}
-                    placeholder="First Name"
-                />
-                <TextInput
-                    value={lastname}
-                    onChangeText={(text) => setLastName(text)}
-                    style={styles.input}
-                    placeholder="Last Name"
+                    placeholder="Name"
                 />
                 <TextInput
                     value={email}
@@ -75,13 +90,22 @@ const Signup = () => {
                     autoCapitalize="none"
                 />
             </View>
+            {errorMessage !== "" ? (
+                <View style={styles.errorMessageContainer}>
+                    <Text style={styles.errorMessage}>{errorMessage}</Text>
+                </View>
+            ) : null}
             <View style={styles.buttonsContainer}>
-                <TouchableOpacity
-                    style={styles.registerButtonContainer}
-                    onPress={handleSignup}
-                >
-                    <Text style={styles.registerButtonText}>Register</Text>
-                </TouchableOpacity>
+                {isLoading ? (
+                    <ActivityIndicator style={styles.registerButtonContainer} />
+                ) : (
+                    <TouchableOpacity
+                        style={styles.registerButtonContainer}
+                        onPress={handleSignup}
+                    >
+                        <Text style={styles.registerButtonText}>Register</Text>
+                    </TouchableOpacity>
+                )}
             </View>
         </KeyboardAvoidingView>
     );
@@ -122,5 +146,16 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "600",
         letterSpacing: 1,
+    },
+    errorMessageContainer: {
+        width: "80%",
+        paddingTop: 5,
+        alignItems: "flex-start",
+        justifyContent: "center",
+    },
+    errorMessage: {
+        color: "red",
+        fontWeight: "400",
+        letterSpacing: 0.3,
     },
 });

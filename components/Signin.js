@@ -1,4 +1,5 @@
 import {
+    ActivityIndicator,
     KeyboardAvoidingView,
     StyleSheet,
     Text,
@@ -6,7 +7,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { auth } from "../firebase";
 import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
@@ -15,6 +16,8 @@ const Signin = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigation = useNavigation();
+    const [errorMessage, setErrorMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const unsubcrible = onAuthStateChanged(auth, (user) => {
@@ -26,17 +29,28 @@ const Signin = () => {
     }, []);
 
     const handleLogin = async () => {
-        try {
-            const userCredentials = await signInWithEmailAndPassword(
-                auth,
-                email,
-                password
-            );
-            const currentUser = userCredentials.user;
-            console.log("Logged In with:", currentUser.email);
-        } catch (error) {
-            console.error(error.code);
+        if (email === "") {
+            setErrorMessage("Enter the email id");
+            return;
         }
+        if (password === "") {
+            setErrorMessage("Enter the password");
+            return;
+        }
+        setErrorMessage("");
+        setIsLoading(true);
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+            if (error.code === "auth/invalid-email") {
+                setErrorMessage("Email Id is invalid");
+            } else if (error.code === "auth/wrong-password") {
+                setErrorMessage("Password is invalid");
+            } else {
+                setErrorMessage(error.code);
+            }
+        }
+        setIsLoading(false);
     };
     return (
         <KeyboardAvoidingView style={styles.container} behavior="padding">
@@ -57,13 +71,22 @@ const Signin = () => {
                     autoCapitalize="none"
                 />
             </View>
+            {errorMessage !== "" ? (
+                <View style={styles.errorMessageContainer}>
+                    <Text style={styles.errorMessage}>{errorMessage}</Text>
+                </View>
+            ) : null}
             <View style={styles.buttonsContainer}>
-                <TouchableOpacity
-                    onPress={handleLogin}
-                    style={styles.loginButtonContainer}
-                >
-                    <Text style={styles.loginButtonText}>Login</Text>
-                </TouchableOpacity>
+                {isLoading ? (
+                    <ActivityIndicator style={styles.loginButtonContainer} />
+                ) : (
+                    <TouchableOpacity
+                        onPress={handleLogin}
+                        style={styles.loginButtonContainer}
+                    >
+                        <Text style={styles.loginButtonText}>Login</Text>
+                    </TouchableOpacity>
+                )}
             </View>
         </KeyboardAvoidingView>
     );
@@ -101,5 +124,16 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "600",
         letterSpacing: 1,
+    },
+    errorMessageContainer: {
+        width: "80%",
+        paddingTop: 5,
+        alignItems: "flex-start",
+        justifyContent: "center",
+    },
+    errorMessage: {
+        color: "red",
+        fontWeight: "400",
+        letterSpacing: 0.3,
     },
 });

@@ -53,7 +53,7 @@ const Signup = () => {
                     navigation.navigate("Main");
                 }
             });
-            writeUserData(
+            await writeUserData(
                 currentUser.uid,
                 currentUser.email,
                 currentUser.displayName
@@ -75,11 +75,12 @@ const Signup = () => {
         setIsLoading(false);
     };
 
-    const writeUserData = (userId, email, name) => {
+    const writeUserData = async (userid, email, name) => {
         const db = getDatabase();
-        set(ref(db, "users/" + userId), {
-            username: name,
-            email: email,
+        await set(ref(db, "users/" + userid), {
+            name,
+            email,
+            userid,
         });
     };
 

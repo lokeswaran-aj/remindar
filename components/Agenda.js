@@ -3,17 +3,16 @@ import React from "react";
 import colors from "../constants/colors";
 import { SwipeListView } from "react-native-swipe-list-view";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { deleteEvent } from "../store/eventSlice";
 import { MaterialIcons } from "@expo/vector-icons";
+import { getDatabase, ref, remove } from "firebase/database";
+import { auth } from "../firebase";
 
 const Agenda = (props) => {
-    const dispatch = useDispatch();
     const selectedMonthEvents = props.selectedMonthEvents;
     let opacity = new Animated.Value(0);
     const [animationIsRunning, setAnimationIsRunning] = useState(false);
 
-    const onSwipeValueChange = (swipeData) => {
+    const onSwipeValueChange = async (swipeData) => {
         const { key, value } = swipeData;
         if (value < -Dimensions.get("window").width && !animationIsRunning) {
             setAnimationIsRunning(true);
@@ -21,8 +20,11 @@ const Agenda = (props) => {
                 useNativeDriver: false,
                 toValue: 0,
                 duration: 0,
-            }).start(() => {
-                dispatch(deleteEvent({ key }));
+            }).start(async () => {
+                const userid = auth.currentUser.uid;
+                const db = getDatabase();
+                const postListRef = ref(db, `events/${userid}/${key}`);
+                await remove(postListRef);
                 setAnimationIsRunning(false);
             });
         }

@@ -18,16 +18,23 @@ const Signin = () => {
     const navigation = useNavigation();
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [isAuthenticating, setIsAuthenticating] = useState(true);
 
     useEffect(() => {
         const unsubcrible = onAuthStateChanged(auth, (user) => {
             if (user) {
+                console.log("Navigate");
                 navigation.replace("Main");
+            } else {
+                setIsAuthenticating(false);
             }
         });
         return unsubcrible;
     }, []);
 
+    if (isAuthenticating) {
+        return <ActivityIndicator size={"large"} />;
+    }
     const handleLogin = async () => {
         if (email === "") {
             setErrorMessage("Enter the email id");

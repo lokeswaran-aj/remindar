@@ -6,7 +6,13 @@ import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { Calendar } from "react-native-calendars";
 import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
-import { getDatabase, ref, onValue, onChildAdded } from "firebase/database";
+import {
+    getDatabase,
+    ref,
+    onValue,
+    onChildAdded,
+    onChildRemoved,
+} from "firebase/database";
 
 import PageContainer from "../components/PageContainer";
 import Agenda from "../components/Agenda";
@@ -46,6 +52,7 @@ const HomeScreen = (props) => {
         "December",
     ];
     useEffect(() => {
+        setName(auth.currentUser.displayName);
         const db = getDatabase();
         let tempEvents = [];
         const myUserId = auth.currentUser.uid;
@@ -53,9 +60,14 @@ const HomeScreen = (props) => {
         let singleEvent;
         onChildAdded(commentsRef, (data) => {
             singleEvent = data.val();
+            singleEvent["key"] = data.key;
             tempEvents.push(singleEvent);
         });
         setAllEvents(tempEvents);
+        onChildRemoved(commentsRef, (data) => {
+            tempEvents = tempEvents.filter((obj) => obj.key !== data.key);
+            setAllEvents(tempEvents);
+        });
     }, []);
     useEffect(() => {
         setSelectedDate(undefined);
@@ -73,16 +85,7 @@ const HomeScreen = (props) => {
         setSelectedMonthEvents(currentMonthEventsSortedByDate);
     }, [currentMonth, props, isFocused, displayType, allEvents]);
 
-    useEffect(() => {
-        const currentuser = auth.currentUser;
-        const db = getDatabase();
-        const starCountRef = ref(db, "users/" + currentuser.uid);
-        onValue(starCountRef, (snapshot) => {
-            const data = snapshot.val();
-            setName(data.username);
-        });
-        setName(auth.currentUser.displayName);
-    }, [auth.currentUser.displayName]);
+    useEffect(() => {}, [auth.currentUser.displayName]);
 
     useEffect(() => {
         if (selectedMonthEvents.length > 0) {

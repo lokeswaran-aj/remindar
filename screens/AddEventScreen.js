@@ -1,6 +1,14 @@
 import React, { useMemo, useState } from "react";
 
-import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+    ActivityIndicator,
+    Alert,
+    Button,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
+} from "react-native";
 import { getDatabase, ref, push, set } from "firebase/database";
 import { auth } from "../firebase";
 
@@ -14,8 +22,10 @@ const AddEventScreen = () => {
     const [selectedDate, setSelectedDate] = useState(today.split("-")[2]);
     const [selectedMonth, setSelectedMonth] = useState(today.split("-")[1]);
     const [eventTitle, setEventTitle] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async () => {
+        setIsSubmitting(true);
         let event = {};
         if (!selectedDate) {
             Alert.alert("Choose a date");
@@ -43,6 +53,7 @@ const AddEventScreen = () => {
         } catch (error) {
             console.error(error.code);
         }
+        setIsSubmitting(false);
     };
 
     const handleSelectedDayChange = (newSelectedDate) => {
@@ -114,8 +125,12 @@ const AddEventScreen = () => {
                         onChangeText={(text) => setEventTitle(text)}
                     />
                 </View>
-                <View>
-                    <Button title="Submit" onPress={handleSubmit} />
+                <View style={{ marginTop: 10 }}>
+                    {isSubmitting ? (
+                        <ActivityIndicator size={"small"} />
+                    ) : (
+                        <Button title="Submit" onPress={handleSubmit} />
+                    )}
                 </View>
             </View>
         </PageContainer>

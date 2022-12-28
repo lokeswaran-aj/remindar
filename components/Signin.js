@@ -51,6 +51,8 @@ const Signin = () => {
         } catch (error) {
             if (error.code === "auth/invalid-email") {
                 setErrorMessage("Email Id is invalid");
+            } else if (error.code === "auth/user-not-found") {
+                setErrorMessage("User not found");
             } else if (error.code === "auth/wrong-password") {
                 setErrorMessage("Password is invalid");
             } else {

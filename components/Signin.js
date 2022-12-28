@@ -7,34 +7,18 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { auth } from "../firebase";
 import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 
 const Signin = () => {
+    const navigation = useNavigation();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const navigation = useNavigation();
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [isAuthenticating, setIsAuthenticating] = useState(true);
 
-    useEffect(() => {
-        const unsubcrible = onAuthStateChanged(auth, (user) => {
-            if (user) {
-                console.log("Navigate");
-                navigation.replace("Main");
-            } else {
-                setIsAuthenticating(false);
-            }
-        });
-        return unsubcrible;
-    }, []);
-
-    if (isAuthenticating) {
-        return <ActivityIndicator size={"large"} />;
-    }
     const handleLogin = async () => {
         if (email === "") {
             setErrorMessage("Enter the email id");
@@ -48,6 +32,13 @@ const Signin = () => {
         setIsLoading(true);
         try {
             await signInWithEmailAndPassword(auth, email, password);
+            const unsubcrible = onAuthStateChanged(auth, (user) => {
+                if (user && user.displayName) {
+                    console.log("login");
+                    navigation.replace("Main");
+                }
+            });
+            return unsubcrible;
         } catch (error) {
             if (error.code === "auth/invalid-email") {
                 setErrorMessage("Email Id is invalid");

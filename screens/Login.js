@@ -1,4 +1,5 @@
 import {
+    ActivityIndicator,
     StyleSheet,
     Text,
     TextInput,
@@ -9,8 +10,44 @@ import PageContainer from "../components/PageContainer";
 import Signin from "../components/Signin";
 import { useState } from "react";
 import Signup from "../components/Signup";
+// import { useEffect } from "react";
+// import { onAuthStateChanged } from "firebase/auth";
+// import { auth } from "../firebase";
+// import { useNavigation } from "@react-navigation/native";
+
 const Login = () => {
     const [signup, setSignup] = useState(false);
+    // const navigation = useNavigation();
+    // const [isAuthenticating, setIsAuthenticating] = useState(false);
+
+    // useEffect(() => {
+    //     const unsubcrible = onAuthStateChanged(auth, (user) => {
+    //         setIsAuthenticating(true);
+    //         if (user) {
+    //             console.log("Navigate");
+    //             navigation.replace("Main");
+    //         } else {
+    //             setIsAuthenticating(false);
+    //         }
+    //     });
+    //     return unsubcrible;
+    // }, []);
+
+    // if (isAuthenticating) {
+    //     return (
+    //         <PageContainer>
+    //             <View
+    //                 style={{
+    //                     flex: 1,
+    //                     alignItems: "center",
+    //                     justifyContent: "center",
+    //                 }}
+    //             >
+    //                 <ActivityIndicator size={"large"} />
+    //             </View>
+    //         </PageContainer>
+    //     );
+    // }
     return (
         <PageContainer>
             <View style={styles.container}>

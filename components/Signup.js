@@ -48,16 +48,17 @@ const Signup = () => {
             await updateProfile(auth.currentUser, {
                 displayName: name,
             });
-            const unsubcrible = onAuthStateChanged(auth, (user) => {
-                if (user && user.displayName) {
-                    navigation.navigate("Main");
-                }
-            });
             await writeUserData(
                 currentUser.uid,
                 currentUser.email,
                 currentUser.displayName
             );
+            const unsubcrible = onAuthStateChanged(auth, (user) => {
+                if (user && user.displayName) {
+                    console.log("signup");
+                    navigation.replace("Main");
+                }
+            });
             return unsubcrible;
         } catch (error) {
             if (error.code === "auth/invalid-email") {

@@ -29,9 +29,11 @@ const AddEventScreen = () => {
         let event = {};
         if (!selectedDate) {
             Alert.alert("Choose a date");
+            setIsSubmitting(false);
             return;
         } else if (eventTitle === "") {
             Alert.alert("Give a event name");
+            setIsSubmitting(false);
             return;
         }
         event = {

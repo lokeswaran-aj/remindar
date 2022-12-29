@@ -12,6 +12,8 @@ import {
     onValue,
     onChildAdded,
     onChildRemoved,
+    get,
+    child,
 } from "firebase/database";
 
 import PageContainer from "../components/PageContainer";
@@ -52,7 +54,20 @@ const HomeScreen = (props) => {
         "December",
     ];
     useEffect(() => {
-        setName(auth.currentUser.displayName);
+        const dbRef = ref(getDatabase());
+        const userId = auth.currentUser.uid;
+        get(child(dbRef, `users/${userId}`))
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    console.log(snapshot.val().name);
+                    setName(snapshot.val().name);
+                } else {
+                    console.error("Name not found");
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
         const db = getDatabase();
         let tempEvents = [];
         const myUserId = auth.currentUser.uid;
@@ -69,6 +84,8 @@ const HomeScreen = (props) => {
             setAllEvents(tempEvents);
         });
     }, []);
+
+    useEffect(() => {}, []);
     useEffect(() => {
         setSelectedDate(undefined);
         setSelectedDayEvents([]);

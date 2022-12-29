@@ -17,7 +17,8 @@ import {
 import { getDatabase, ref, set } from "firebase/database";
 import { useNavigation } from "@react-navigation/native";
 
-const Signup = () => {
+const Signup = (props) => {
+    const { setSignup } = props;
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -40,23 +41,16 @@ const Signup = () => {
         setErrorMessage("");
         setIsLoading(true);
         try {
-            const { user: currentUser } = await createUserWithEmailAndPassword(
-                auth,
-                email,
-                password
-            );
-            await updateProfile(auth.currentUser, {
-                displayName: name,
-            });
+            await createUserWithEmailAndPassword(auth, email, password);
             await writeUserData(
-                currentUser.uid,
-                currentUser.email,
-                currentUser.displayName
+                auth.currentUser.uid,
+                auth.currentUser.email,
+                name
             );
             const unsubcrible = onAuthStateChanged(auth, (user) => {
-                if (user && user.displayName) {
-                    console.log("signup");
-                    navigation.replace("Main");
+                if (user) {
+                    console.log("Loging screen");
+                    navigation.navigate("Main");
                 }
             });
             return unsubcrible;
@@ -127,6 +121,14 @@ const Signup = () => {
                     </TouchableOpacity>
                 )}
             </View>
+            <View>
+                <TouchableOpacity
+                    onPress={() => setSignup(false)}
+                    style={styles.switchText}
+                >
+                    <Text>Already an existing user? Login</Text>
+                </TouchableOpacity>
+            </View>
         </KeyboardAvoidingView>
     );
 };
@@ -177,5 +179,10 @@ const styles = StyleSheet.create({
         color: "red",
         fontWeight: "400",
         letterSpacing: 0.3,
+    },
+    switchText: {
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 10,
     },
 });

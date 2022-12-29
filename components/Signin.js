@@ -11,13 +11,46 @@ import { useState } from "react";
 import { auth } from "../firebase";
 import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
+import { useEffect } from "react";
+import PageContainer from "./PageContainer";
 
-const Signin = () => {
+const Signin = (props) => {
+    const { setSignup } = props;
     const navigation = useNavigation();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("t1@gmail.com");
+    const [password, setPassword] = useState("1234567890");
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [isAuthenticating, setIsAuthenticating] = useState(true);
+    useEffect(() => {
+        const unsubcrible = onAuthStateChanged(auth, (user) => {
+            console.log("auth state check");
+            setIsAuthenticating(true);
+            if (user) {
+                navigation.replace("Main");
+            } else {
+                setIsAuthenticating(false);
+                console.log("NO user");
+            }
+        });
+        return unsubcrible;
+    }, []);
+
+    if (isAuthenticating) {
+        return (
+            <PageContainer>
+                <View
+                    style={{
+                        flex: 1,
+                        alignItems: "center",
+                        justifyContent: "center",
+                    }}
+                >
+                    <ActivityIndicator size={"large"} />
+                </View>
+            </PageContainer>
+        );
+    }
 
     const handleLogin = async () => {
         if (email === "") {
@@ -33,7 +66,7 @@ const Signin = () => {
         try {
             await signInWithEmailAndPassword(auth, email, password);
             const unsubcrible = onAuthStateChanged(auth, (user) => {
-                if (user && user.displayName) {
+                if (user) {
                     console.log("login");
                     navigation.replace("Main");
                 }
@@ -88,6 +121,14 @@ const Signin = () => {
                     </TouchableOpacity>
                 )}
             </View>
+            <View>
+                <TouchableOpacity
+                    onPress={() => setSignup(true)}
+                    style={styles.switchText}
+                >
+                    <Text>Do not have an account? Register</Text>
+                </TouchableOpacity>
+            </View>
         </KeyboardAvoidingView>
     );
 };
@@ -135,5 +176,10 @@ const styles = StyleSheet.create({
         color: "red",
         fontWeight: "400",
         letterSpacing: 0.3,
+    },
+    switchText: {
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 10,
     },
 });

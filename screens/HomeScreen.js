@@ -8,11 +8,8 @@ import { signOut } from "firebase/auth";
 import {
     getDatabase,
     ref,
-    onValue,
     onChildAdded,
     onChildRemoved,
-    get,
-    child,
 } from "firebase/database";
 
 import PageContainer from "../components/PageContainer";
@@ -36,7 +33,7 @@ const HomeScreen = (props) => {
     const [selectedDate, setSelectedDate] = useState(undefined);
     const [allEvents, setAllEvents] = useState([]);
     const [displayType, setDisplayType] = useState("calendar");
-    const [name, setName] = useState(props.route?.params?.displayName);
+    const name = props.route?.params?.displayName;
 
     const monthsInTheYear = [
         "January",
@@ -55,15 +52,15 @@ const HomeScreen = (props) => {
     useEffect(() => {
         const db = getDatabase();
         let tempEvents = [];
+        let singleEvent;
         const myUserId = auth.currentUser.uid;
         const commentsRef = ref(db, "events/" + myUserId);
-        let singleEvent;
         onChildAdded(commentsRef, (data) => {
             singleEvent = data.val();
             singleEvent["key"] = data.key;
             tempEvents.push(singleEvent);
+            setAllEvents(tempEvents);
         });
-        setAllEvents(tempEvents);
         onChildRemoved(commentsRef, (data) => {
             tempEvents = tempEvents.filter((obj) => obj.key !== data.key);
             setAllEvents(tempEvents);
@@ -75,11 +72,11 @@ const HomeScreen = (props) => {
         setSelectedDayEvents([]);
         let currentMonthEvents = [];
 
-        allEvents.forEach((obj) => {
-            if (obj.month == currentMonth) {
-                currentMonthEvents.push(obj);
+        for (let i = 0; i < allEvents.length; i++) {
+            if (allEvents[i].month == currentMonth) {
+                currentMonthEvents.push(allEvents[i]);
             }
-        });
+        }
         let currentMonthEventsSortedByDate = [...currentMonthEvents].sort(
             (a, b) => a.date - b.date
         );
@@ -93,7 +90,7 @@ const HomeScreen = (props) => {
         } else {
             setSelectedMonthEventDates([]);
         }
-    }, [selectedMonthEvents, currentMonth, currentYear, props]);
+    }, [allEvents, selectedMonthEvents, currentMonth, currentYear, props]);
     const onDayPress = ({ day }) => {
         if (day === selectedDate) {
             setSelectedDate(undefined);
@@ -184,9 +181,9 @@ const HomeScreen = (props) => {
                 <View>
                     <View style={styles.headerContainer}>
                         <View style={styles.header}>
-                            <Text style={styles.welcomeText}>
-                                Hi, {name === null ? "dear friend" : name}!
-                            </Text>
+                            <Text
+                                style={styles.welcomeText}
+                            >{`Hi, ${name}!`}</Text>
                             <Button title="Logout" onPress={handleLogout} />
                         </View>
                         <View style={styles.header}>
@@ -226,6 +223,7 @@ const HomeScreen = (props) => {
                             markedDates={marked}
                             onMonthChange={handleMonthChange}
                         />
+
                         <View style={{ flex: 1 }}>
                             {selectedDate === undefined &&
                                 selectedDayEvents.length === 0 && (
@@ -311,14 +309,13 @@ const styles = StyleSheet.create({
     headerContainer: {
         justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: 20,
     },
     header: {
         width: "100%",
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: 20,
+        marginBottom: 5,
     },
     welcomeText: {
         fontSize: 24,

@@ -42,15 +42,20 @@ const Signup = (props) => {
         setIsLoading(true);
         try {
             await createUserWithEmailAndPassword(auth, email, password);
+            await updateProfile(auth.currentUser, {
+                displayName: name,
+            });
             await writeUserData(
                 auth.currentUser.uid,
                 auth.currentUser.email,
-                name
+                auth.currentUser.displayName
             );
             const unsubcrible = onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    console.log("Loging screen");
-                    navigation.navigate("Main");
+                    navigation.navigate("Main", {
+                        screen: "Home",
+                        params: { displayName: user.displayName },
+                    });
                 }
             });
             return unsubcrible;

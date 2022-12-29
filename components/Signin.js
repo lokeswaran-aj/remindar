@@ -17,17 +17,19 @@ import PageContainer from "./PageContainer";
 const Signin = (props) => {
     const { setSignup } = props;
     const navigation = useNavigation();
-    const [email, setEmail] = useState("t1@gmail.com");
+    const [email, setEmail] = useState("t12@gmail.com");
     const [password, setPassword] = useState("1234567890");
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isAuthenticating, setIsAuthenticating] = useState(true);
     useEffect(() => {
         const unsubcrible = onAuthStateChanged(auth, (user) => {
-            console.log("auth state check");
             setIsAuthenticating(true);
             if (user) {
-                navigation.replace("Main");
+                navigation.navigate("Main", {
+                    screen: "Home",
+                    params: { displayName: user.displayName },
+                });
             } else {
                 setIsAuthenticating(false);
                 console.log("NO user");

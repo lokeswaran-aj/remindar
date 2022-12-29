@@ -1,6 +1,5 @@
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
 import { AntDesign, Entypo, FontAwesome } from "@expo/vector-icons";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { Calendar } from "react-native-calendars";
@@ -37,7 +36,7 @@ const HomeScreen = (props) => {
     const [selectedDate, setSelectedDate] = useState(undefined);
     const [allEvents, setAllEvents] = useState([]);
     const [displayType, setDisplayType] = useState("calendar");
-    const [name, setName] = useState("Dear Friend");
+    const [name, setName] = useState(props.route?.params?.displayName);
 
     const monthsInTheYear = [
         "January",
@@ -54,20 +53,6 @@ const HomeScreen = (props) => {
         "December",
     ];
     useEffect(() => {
-        const dbRef = ref(getDatabase());
-        const userId = auth.currentUser.uid;
-        get(child(dbRef, `users/${userId}`))
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    console.log(snapshot.val().name);
-                    setName(snapshot.val().name);
-                } else {
-                    console.error("Name not found");
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
         const db = getDatabase();
         let tempEvents = [];
         const myUserId = auth.currentUser.uid;
@@ -85,7 +70,6 @@ const HomeScreen = (props) => {
         });
     }, []);
 
-    useEffect(() => {}, []);
     useEffect(() => {
         setSelectedDate(undefined);
         setSelectedDayEvents([]);
@@ -101,8 +85,6 @@ const HomeScreen = (props) => {
         );
         setSelectedMonthEvents(currentMonthEventsSortedByDate);
     }, [currentMonth, props, isFocused, displayType, allEvents]);
-
-    useEffect(() => {}, [auth.currentUser.displayName]);
 
     useEffect(() => {
         if (selectedMonthEvents.length > 0) {
@@ -191,7 +173,7 @@ const HomeScreen = (props) => {
     const handleLogout = async () => {
         try {
             await signOut(auth);
-            navigation.replace("Login");
+            navigation.goBack();
         } catch (error) {
             console.log(error);
         }

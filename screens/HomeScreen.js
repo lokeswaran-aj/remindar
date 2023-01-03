@@ -10,7 +10,12 @@ import {
     ref,
     onChildAdded,
     onChildRemoved,
+    child,
+    get,
+    set,
 } from "firebase/database";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
 
 import PageContainer from "../components/PageContainer";
 import Agenda from "../components/Agenda";
@@ -169,6 +174,35 @@ const HomeScreen = (props) => {
 
     const handleLogout = async () => {
         try {
+            if (Device.isDevice) {
+                const token = (await Notifications.getExpoPushTokenAsync())
+                    .data;
+                const userid = auth.currentUser.uid;
+                let pushTokens;
+                const dbRef = ref(getDatabase());
+                await get(child(dbRef, `users/${userid}/token`))
+                    .then((snapshot) => {
+                        if (snapshot.exists()) {
+                            pushTokens = snapshot.val();
+                        } else {
+                            pushTokens = {};
+                        }
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    });
+
+                for (let key in pushTokens) {
+                    if (pushTokens[key] === token) {
+                        delete pushTokens[key];
+                        break;
+                    }
+                }
+
+                const userRef = child(dbRef, `users/${userid}/token`);
+
+                await set(userRef, pushTokens);
+            }
             await signOut(auth);
             navigation.goBack();
         } catch (error) {

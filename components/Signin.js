@@ -7,22 +7,26 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
 import { useState } from "react";
 import { auth } from "../firebase";
 import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import { useEffect } from "react";
 import PageContainer from "./PageContainer";
+import { child, get, getDatabase, ref, set } from "firebase/database";
 
 const Signin = (props) => {
     const { setSignup } = props;
     const navigation = useNavigation();
-    const [email, setEmail] = useState("t12@gmail.com");
+    const [email, setEmail] = useState("t4@gmail.com");
     const [password, setPassword] = useState("1234567890");
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isAuthenticating, setIsAuthenticating] = useState(true);
     useEffect(() => {
+        setIsLoading(false);
         const unsubcrible = onAuthStateChanged(auth, (user) => {
             setIsAuthenticating(true);
             if (user) {
@@ -67,10 +71,51 @@ const Signin = (props) => {
         setIsLoading(true);
         try {
             await signInWithEmailAndPassword(auth, email, password);
+            setIsLoading(false);
+            if (Device.isDevice) {
+                const token = (await Notifications.getExpoPushTokenAsync())
+                    .data;
+                console.log(token);
+                const userid = auth.currentUser.uid;
+                let pushTokens;
+                const dbRef = ref(getDatabase());
+                await get(child(dbRef, `users/${userid}/token`))
+                    .then((snapshot) => {
+                        if (snapshot.exists()) {
+                            pushTokens = snapshot.val();
+                        } else {
+                            pushTokens = {};
+                        }
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    });
+                const tokenData = { ...pushTokens } || {};
+                const tokenArray = Object.values(tokenData);
+
+                if (tokenArray.includes(token)) {
+                    return;
+                }
+
+                tokenArray.push(token);
+
+                for (let i = 0; i < tokenArray.length; i++) {
+                    const tok = tokenArray[i];
+                    tokenData[i] = tok;
+                }
+
+                const userRef = child(dbRef, `users/${userid}/token`);
+
+                await set(userRef, tokenData);
+            }
+
             const unsubcrible = onAuthStateChanged(auth, (user) => {
                 if (user) {
                     console.log("login");
-                    navigation.replace("Main");
+                    navigation.navigate("Main", {
+                        screen: "Home",
+                        params: { displayName: user.displayName },
+                    });
                 }
             });
             return unsubcrible;

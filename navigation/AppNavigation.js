@@ -7,6 +7,10 @@ import {
     Feather,
     AntDesign,
 } from "@expo/vector-icons";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import React, { useState, useEffect, useRef } from "react";
+import { Text, View, Button, Platform } from "react-native";
 
 import HomeScreen from "../screens/HomeScreen";
 import SettingsScreen from "../screens/SettingsScreen";
@@ -103,6 +107,38 @@ function MyTabs() {
     );
 }
 export default function () {
+    const [expoPushToken, setExpoPushToken] = useState("");
+    console.log(expoPushToken);
+    const notificationListener = useRef();
+    const responseListener = useRef();
+
+    useEffect(() => {
+        registerForPushNotificationsAsync().then((token) =>
+            setExpoPushToken(token)
+        );
+
+        notificationListener.current =
+            Notifications.addNotificationReceivedListener((notification) => {
+                // handle notification
+            });
+
+        responseListener.current =
+            Notifications.addNotificationResponseReceivedListener(
+                (response) => {
+                    console.log("Notification tapped:");
+                    console.log(response);
+                }
+            );
+
+        return () => {
+            Notifications.removeNotificationSubscription(
+                notificationListener.current
+            );
+            Notifications.removeNotificationSubscription(
+                responseListener.current
+            );
+        };
+    }, []);
     return (
         <Stack.Navigator
             screenOptions={{
@@ -117,4 +153,37 @@ export default function () {
             </Stack.Group>
         </Stack.Navigator>
     );
+}
+
+async function registerForPushNotificationsAsync() {
+    let token;
+
+    if (Platform.OS === "android") {
+        await Notifications.setNotificationChannelAsync("default", {
+            name: "default",
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: "#FF231F7C",
+        });
+    }
+
+    if (Device.isDevice) {
+        const { status: existingStatus } =
+            await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+        if (existingStatus !== "granted") {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+        }
+        if (finalStatus !== "granted") {
+            alert("Failed to get push token for push notification!");
+            return;
+        }
+        token = (await Notifications.getExpoPushTokenAsync()).data;
+        console.log(token);
+    } else {
+        console.log("Must use physical device for Push Notifications");
+    }
+
+    return token;
 }

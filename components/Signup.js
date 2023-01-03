@@ -7,6 +7,8 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
 import { useState } from "react";
 import { auth } from "../firebase";
 import {
@@ -45,10 +47,19 @@ const Signup = (props) => {
             await updateProfile(auth.currentUser, {
                 displayName: name,
             });
+            console.log(auth.currentUser);
+            let token = "";
+            console.log(token);
+            if (Device.isDevice) {
+                console.log("Running in real device");
+                token = (await Notifications.getExpoPushTokenAsync()).data;
+            }
+
             await writeUserData(
                 auth.currentUser.uid,
                 auth.currentUser.email,
-                auth.currentUser.displayName
+                auth.currentUser.displayName,
+                token
             );
             const unsubcrible = onAuthStateChanged(auth, (user) => {
                 if (user) {
@@ -75,13 +86,23 @@ const Signup = (props) => {
         setIsLoading(false);
     };
 
-    const writeUserData = async (userid, email, name) => {
+    const writeUserData = async (userid, email, name, token) => {
         const db = getDatabase();
-        await set(ref(db, "users/" + userid), {
-            name,
-            email,
-            userid,
-        });
+        if (token !== "") {
+            await set(ref(db, "users/" + userid), {
+                name,
+                email,
+                userid,
+                token: [token],
+            });
+        } else {
+            await set(ref(db, "users/" + userid), {
+                name,
+                email,
+                userid,
+                token: [],
+            });
+        }
     };
 
     return (

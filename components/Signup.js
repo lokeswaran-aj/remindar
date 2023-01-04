@@ -8,9 +8,9 @@ import {
     View,
 } from "react-native";
 import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
 import { useState } from "react";
 import { auth } from "../firebase";
+import messaging from "@react-native-firebase/messaging";
 import {
     createUserWithEmailAndPassword,
     onAuthStateChanged,
@@ -49,10 +49,16 @@ const Signup = (props) => {
             });
             console.log(auth.currentUser);
             let token = "";
-            console.log(token);
             if (Device.isDevice) {
-                console.log("Running in real device");
-                token = (await Notifications.getExpoPushTokenAsync()).data;
+                try {
+                    await messaging().registerDeviceForRemoteMessages();
+                } catch (error) {
+                    console.log("Already registered");
+                }
+                token = await messaging().getToken();
+                console.log("====================================");
+                console.log(token);
+                console.log("====================================");
             }
 
             await writeUserData(
@@ -69,6 +75,7 @@ const Signup = (props) => {
                     });
                 }
             });
+            setIsLoading(false);
             return unsubcrible;
         } catch (error) {
             if (error.code === "auth/invalid-email") {
@@ -100,7 +107,6 @@ const Signup = (props) => {
                 name,
                 email,
                 userid,
-                token: [],
             });
         }
     };

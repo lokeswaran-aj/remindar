@@ -1,5 +1,6 @@
+import "expo-dev-client";
 import "react-native-gesture-handler";
-import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import AppNavigation from "./navigation/AppNavigation";

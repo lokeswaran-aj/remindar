@@ -8,7 +8,7 @@ import {
     View,
 } from "react-native";
 import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
+import messaging from "@react-native-firebase/messaging";
 import { useState } from "react";
 import { auth } from "../firebase";
 import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
@@ -39,6 +39,7 @@ const Signin = (props) => {
                 console.log("NO user");
             }
         });
+
         return unsubcrible;
     }, []);
 
@@ -73,40 +74,49 @@ const Signin = (props) => {
             await signInWithEmailAndPassword(auth, email, password);
             setIsLoading(false);
             if (Device.isDevice) {
-                const token = (await Notifications.getExpoPushTokenAsync())
-                    .data;
-                console.log(token);
-                const userid = auth.currentUser.uid;
-                let pushTokens;
-                const dbRef = ref(getDatabase());
-                await get(child(dbRef, `users/${userid}/token`))
-                    .then((snapshot) => {
-                        if (snapshot.exists()) {
-                            pushTokens = snapshot.val();
-                        } else {
-                            pushTokens = {};
-                        }
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                    });
-                const tokenData = { ...pushTokens } || {};
-                const tokenArray = Object.values(tokenData);
+                const getToken = async () => {
+                    try {
+                        await messaging().registerDeviceForRemoteMessages();
+                    } catch (error) {
+                        console.log("Already registered");
+                    }
+                    const token = await messaging().getToken();
+                    console.log("====================================");
+                    console.log(token);
+                    console.log("====================================");
+                    const userid = auth.currentUser.uid;
+                    let pushTokens;
+                    const dbRef = ref(getDatabase());
+                    await get(child(dbRef, `users/${userid}/token`))
+                        .then((snapshot) => {
+                            if (snapshot.exists()) {
+                                pushTokens = snapshot.val();
+                            } else {
+                                pushTokens = {};
+                            }
+                        })
+                        .catch((error) => {
+                            console.error(error);
+                        });
+                    const tokenData = { ...pushTokens } || {};
+                    const tokenArray = Object.values(tokenData);
 
-                if (tokenArray.includes(token)) {
-                    return;
-                }
+                    if (tokenArray.includes(token)) {
+                        return;
+                    }
 
-                tokenArray.push(token);
+                    tokenArray.push(token);
 
-                for (let i = 0; i < tokenArray.length; i++) {
-                    const tok = tokenArray[i];
-                    tokenData[i] = tok;
-                }
+                    for (let i = 0; i < tokenArray.length; i++) {
+                        const tok = tokenArray[i];
+                        tokenData[i] = tok;
+                    }
 
-                const userRef = child(dbRef, `users/${userid}/token`);
+                    const userRef = child(dbRef, `users/${userid}/token`);
 
-                await set(userRef, tokenData);
+                    await set(userRef, tokenData);
+                };
+                getToken();
             }
 
             const unsubcrible = onAuthStateChanged(auth, (user) => {

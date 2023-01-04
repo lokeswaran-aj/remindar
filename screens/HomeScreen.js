@@ -4,6 +4,7 @@ import { AntDesign, Entypo, FontAwesome } from "@expo/vector-icons";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { Calendar } from "react-native-calendars";
 import { auth } from "../firebase";
+import messaging from "@react-native-firebase/messaging";
 import { signOut } from "firebase/auth";
 import {
     getDatabase,
@@ -15,8 +16,6 @@ import {
     set,
 } from "firebase/database";
 import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
-
 import PageContainer from "../components/PageContainer";
 import Agenda from "../components/Agenda";
 
@@ -175,8 +174,7 @@ const HomeScreen = (props) => {
     const handleLogout = async () => {
         try {
             if (Device.isDevice) {
-                const token = (await Notifications.getExpoPushTokenAsync())
-                    .data;
+                const token = await messaging().getToken();
                 const userid = auth.currentUser.uid;
                 let pushTokens;
                 const dbRef = ref(getDatabase());

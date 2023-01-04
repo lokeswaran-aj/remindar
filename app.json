@@ -19,10 +19,12 @@
             "supportsTablet": true
         },
         "android": {
+            "googleServicesFile": "./google-services.json",
             "adaptiveIcon": {
                 "foregroundImage": "./assets/adaptive-icon.png",
                 "backgroundColor": "#FFFFFF"
-            }
+            },
+            "package": "com.lokeswaran.reminder"
         },
         "web": {
             "favicon": "./assets/favicon.png"
@@ -31,14 +33,14 @@
             [
                 "expo-notifications",
                 {
-                    "icon": "./local/assets/notification-icon.png",
-                    "color": "#ffffff",
-                    "sounds": [
-                        "./local/assets/notification-sound.wav",
-                        "./local/assets/notification-sound-other.wav"
-                    ]
+                    "color": "#ffffff"
                 }
             ]
-        ]
+        ],
+        "extra": {
+            "eas": {
+                "projectId": "59a087e7-ada2-45e4-b94d-3d4d7a18eb8d"
+            }
+        }
     }
 }

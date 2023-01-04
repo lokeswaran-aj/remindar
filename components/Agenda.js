@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     date: {
         width: 40,
         height: 40,
-        padding: 10,
+        // padding: 10,
         borderRadius: 25,
         color: "#F6E7C1",
         backgroundColor: colors.primary,
